@@ -94,6 +94,7 @@ public:
 protected:
     void InitializeGraph();
     void InitializeVideo();
+	void printCapabilities();
 
 private:
     IFilterGraph2*			graph;

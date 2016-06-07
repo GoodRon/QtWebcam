@@ -1,4 +1,4 @@
-#include "VideoCapture.h"
+#include "videocapture.h"
 
 //VIDEODEVICE
 //public
@@ -134,6 +134,7 @@ VideoCapture::VideoCapture()
 
     InitializeGraph();
     InitializeVideo();
+    printCapabilities();
 
     // we have to use this construct, because other
     // filters may have been added to the graph
@@ -291,7 +292,46 @@ void VideoCapture::InitializeVideo()
     }
 }
 
+#include <iostream>
+#include <tic.h>
 
+void VideoCapture::printCapabilities() {
+    HRESULT hr;
+    AM_MEDIA_TYPE *pmt = NULL;
+    VIDEOINFOHEADER *pvi = NULL;
+    VIDEO_STREAM_CONFIG_CAPS scc;
+    IAMStreamConfig* pConfig = 0;
+
+    VideoDevice* dev = devices;
+
+    hr = capture->FindInterface(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video,
+                                dev->sourcefilter, IID_IAMStreamConfig, (void**)&pConfig);
+    if (FAILED(hr)) {
+        std::cerr << "Can't find IID_IAMStreamConfig" << std::endl;
+        throw hr;
+    }
+
+    int iCount;
+    int iSize;
+    hr = pConfig->GetNumberOfCapabilities(&iCount, &iSize);
+    if (FAILED(hr)) {
+        std::cerr << "Can't GetNumberOfCapabilities" << std::endl;
+        throw hr;
+    }
+
+    for (int iIndex = 0; iIndex < iCount; ++iIndex) {
+        hr = pConfig->GetStreamCaps(iIndex, &pmt, reinterpret_cast<BYTE*>(&scc));
+        auto pixelFormat = pixelFormatFromMediaSubtype(pmt->subtype);
+
+        if (pmt->majortype == MEDIATYPE_Video
+            && pmt->formattype == FORMAT_VideoInfo) {
+            pvi = reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat);
+            std::cout << "width " << pvi->bmiHeader.biWidth
+                      << " height " << pvi->bmiHeader.biHeight << std::endl;
+        }
+    }
+    pConfig->Release();
+}
 
 
 
