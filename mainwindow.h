@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QGroupBox>
-#include <QListWidget>
+#include <QComboBox>
 
 class MainWindow : public QMainWindow
 {
@@ -26,7 +26,7 @@ private:
 	QPushButton* buttonStart;
 	QGroupBox* videoGroup;
 	QGroupBox* controlGroup;
-	QListWidget* cameraList;
+	QComboBox* cameraList;
 };
 
 #endif // MAINWINDOW_H

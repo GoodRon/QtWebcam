@@ -176,10 +176,8 @@ int main(int argc, char *argv[]) {
 */
 
 #include <cstdio>
-#include "VideoCapture.h"
+#include "videocapture.h"
 #include "CaptureWindow.h"
-
-#define TEST(x) printf("\nPress enter to test: " #x); getchar(); fflush(stdin); x;
 
 CaptureWindow* cw;
 

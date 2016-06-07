@@ -84,6 +84,7 @@ void VideoDevice::CallbackHandler::SetCallback(VideoCaptureCallback cb)
 
 HRESULT VideoDevice::CallbackHandler::SampleCB(double time, IMediaSample *sample)
 {
+    /*
     HRESULT hr;
     unsigned char* buffer;
 
@@ -91,11 +92,13 @@ HRESULT VideoDevice::CallbackHandler::SampleCB(double time, IMediaSample *sample
     if (hr != S_OK) return S_OK;
 
     if (callback) callback(buffer, sample->GetActualDataLength(), BITS_PER_PIXEL, parent);
+    */
     return S_OK;
 }
 
 HRESULT VideoDevice::CallbackHandler::BufferCB(double time, BYTE *buffer, long len)
 {
+    if (callback) callback(buffer, len, BITS_PER_PIXEL, parent);
     return S_OK;
 }
 

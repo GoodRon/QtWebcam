@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
       buttonStart(new QPushButton),
       videoGroup(new QGroupBox),
       controlGroup(new QGroupBox),
-      cameraList(new QListWidget)
+      cameraList(new QComboBox)
 {
 	setCentralWidget(controlGroup);
 
@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
 	videoLayout->addWidget(buttonStart);
 	videoGroup->setLayout(videoLayout);
 
-	cameraList->setFixedWidth(200);
+	cameraList->setFixedWidth(150);
 	controlLayout->addWidget(videoGroup);
 	controlLayout->addWidget(cameraList);
 	controlGroup->setLayout(controlLayout);
