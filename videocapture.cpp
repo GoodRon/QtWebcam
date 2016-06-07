@@ -293,7 +293,6 @@ void VideoCapture::InitializeVideo()
 }
 
 #include <iostream>
-#include <tic.h>
 
 void VideoCapture::printCapabilities() {
     HRESULT hr;
@@ -321,7 +320,6 @@ void VideoCapture::printCapabilities() {
 
     for (int iIndex = 0; iIndex < iCount; ++iIndex) {
         hr = pConfig->GetStreamCaps(iIndex, &pmt, reinterpret_cast<BYTE*>(&scc));
-        auto pixelFormat = pixelFormatFromMediaSubtype(pmt->subtype);
 
         if (pmt->majortype == MEDIATYPE_Video
             && pmt->formattype == FORMAT_VideoInfo) {
