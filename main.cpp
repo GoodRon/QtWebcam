@@ -161,7 +161,7 @@ void InitializeVideo()
     }
 }
 */
-
+/*
 int main(int argc, char *argv[]) {
 //    initializeGraph();
 //    InitializeVideo();
@@ -173,8 +173,8 @@ int main(int argc, char *argv[]) {
 
     return a.exec();
 }
+*/
 
-/*
 #include <cstdio>
 #include "VideoCapture.h"
 #include "CaptureWindow.h"
@@ -210,4 +210,4 @@ int main()
 
     return 0;
 }
- */
+
