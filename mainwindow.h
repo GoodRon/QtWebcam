@@ -18,7 +18,14 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void bindBitmap(QBitmap* bitmap);
+
+protected:
+    void timerEvent(QTimerEvent *event);
+
 private:
+    int timerId;
+
 	QImage image;
 	QLabel* imageLabel;
 	QVBoxLayout* videoLayout;
@@ -27,6 +34,7 @@ private:
 	QGroupBox* videoGroup;
 	QGroupBox* controlGroup;
 	QComboBox* cameraList;
+        QBitmap* m_bitmap;
 };
 
 #endif // MAINWINDOW_H

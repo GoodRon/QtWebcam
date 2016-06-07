@@ -1,7 +1,11 @@
 #include "mainwindow.h"
 
+#include <QPixmap>
+#include <QBitmap>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
+      timerId(),
       image(),
       imageLabel(new QLabel),
       videoLayout(new QVBoxLayout),
@@ -9,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
       buttonStart(new QPushButton),
       videoGroup(new QGroupBox),
       controlGroup(new QGroupBox),
-      cameraList(new QComboBox)
+      cameraList(new QComboBox),
+      m_bitmap()
 {
 	setCentralWidget(controlGroup);
 
@@ -24,9 +29,23 @@ MainWindow::MainWindow(QWidget *parent)
 	controlLayout->addWidget(videoGroup);
 	controlLayout->addWidget(cameraList);
 	controlGroup->setLayout(controlLayout);
+
+        timerId = startTimer(1000);
 }
 
 MainWindow::~MainWindow()
 {
+    delete m_bitmap;
+    killTimer(timerId);
+}
 
+void MainWindow::bindBitmap(QBitmap* bitmap) {
+    bitmap = new QBitmap;
+    m_bitmap = bitmap;
+}
+
+void MainWindow::timerEvent(QTimerEvent *event) {
+	const QPixmap* pixmap = reinterpret_cast<QPixmap*>(m_bitmap);
+    imageLabel->setPixmap(*pixmap);
+    imageLabel->repaint();
 }
