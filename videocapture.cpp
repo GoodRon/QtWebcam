@@ -294,7 +294,7 @@ void VideoCapture::InitializeVideo()
 
 #include <iostream>
 
-void printPixelFormat(GUID uid) {
+bool checkPixelFormat(GUID uid) {
     if (uid == MEDIASUBTYPE_ARGB32)
         std::cout << "MEDIASUBTYPE_ARGB32" << std::endl;
     else if (uid == MEDIASUBTYPE_RGB32)
@@ -307,8 +307,6 @@ void printPixelFormat(GUID uid) {
         std::cout << "MEDIASUBTYPE_RGB555" << std::endl;
     else if (uid == MEDIASUBTYPE_AYUV)
         std::cout << "MEDIASUBTYPE_AYUV" << std::endl;
-    else if (uid == MEDIASUBTYPE_I420 || uid == MEDIASUBTYPE_IYUV)
-        std::cout << "MEDIASUBTYPE_IYUV" << std::endl;
     else if (uid == MEDIASUBTYPE_YV12)
         std::cout << "MEDIASUBTYPE_YV12" << std::endl;
     else if (uid == MEDIASUBTYPE_UYVY)
@@ -325,8 +323,10 @@ void printPixelFormat(GUID uid) {
         std::cout << "MEDIASUBTYPE_IMC3" << std::endl;
     else if (uid == MEDIASUBTYPE_IMC4)
         std::cout << "MEDIASUBTYPE_IMC4" << std::endl;
-    else
-        std::cout << "broken format" << std::endl;
+    else {
+        return false;
+    }
+    return true;
 }
 
 void VideoCapture::printCapabilities() {
@@ -355,15 +355,32 @@ void VideoCapture::printCapabilities() {
 
     for (int iIndex = 0; iIndex < iCount; ++iIndex) {
         hr = pConfig->GetStreamCaps(iIndex, &pmt, reinterpret_cast<BYTE*>(&scc));
+        if (FAILED(hr)) {
+            std::cerr << "Can't GetStreamCaps" << std::endl;
+            throw hr;
+        }
 
-        printPixelFormat(pmt->subtype);
+        if (!printPixelFormat(pmt->subtype)) {
+            continue;
+        }
+
         if (pmt->majortype == MEDIATYPE_Video
             && pmt->formattype == FORMAT_VideoInfo) {
             pvi = reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat);
             std::cout << "width " << pvi->bmiHeader.biWidth
                       << " height " << pvi->bmiHeader.biHeight << std::endl;
         }
+
+        if (pmt->majortype == MEDIATYPE_Video && pmt->subtype == MEDIASUBTYPE_RGB24 &&
+            pmt->formattype == FORMAT_VideoInfo && pvi->bmiHeader.biHeight == 720) {
+            hr = pConfig->SetFormat(pmt);
+            if (FAILED(hr)) {
+                std::cerr << "Can't GetStreamCaps" << std::endl;
+                throw hr;
+            }
+        }
     }
+
     pConfig->Release();
 }
 
