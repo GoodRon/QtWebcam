@@ -183,11 +183,11 @@ CaptureWindow* cw;
 
 void callback(unsigned char* data, int len, int bpp, VideoDevice* dev)
 {
-    int id = dev->GetId()-1;
-    int x = 330 * (id%2) + 10;
-    int y = 250 * (id/2) + 10;
+//    int id = dev->GetId()-1;
+//    int x = 330 * (id%2) + 10;
+//    int y = 250 * (id/2) + 10;
 
-    cw->DrawCapture(x,y,320,240,bpp,data);
+    cw->DrawCapture(0,0,1280,720,bpp,data);
 }
 
 int main()

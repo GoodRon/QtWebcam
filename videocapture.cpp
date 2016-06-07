@@ -256,7 +256,7 @@ void VideoCapture::InitializeVideo()
                 if (hr != S_OK) throw hr;
 
                 //add the callback to the samplegrabber
-                hr = dev->samplegrabber->SetCallback(dev->callbackhandler,0);
+                hr = dev->samplegrabber->SetCallback(dev->callbackhandler,1);
                 if (hr != S_OK) throw hr;
 
                 //set the null renderer
