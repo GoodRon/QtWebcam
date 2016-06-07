@@ -360,7 +360,7 @@ void VideoCapture::printCapabilities() {
             throw hr;
         }
 
-        if (!printPixelFormat(pmt->subtype)) {
+        if (!checkPixelFormat(pmt->subtype)) {
             continue;
         }
 

@@ -40,7 +40,7 @@ CaptureWindow::CaptureWindow()
 	//Create the Window
     window = CreateWindow(	"CaptureWindow", "Limitz Capture Window",
 							WS_OVERLAPPEDWINDOW,
-							0, 0, 680, 600,
+							0, 0, 1280, 720,
 							NULL, NULL, hinst, NULL);
 
 	//Create a compatible backbuffer
