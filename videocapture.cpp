@@ -294,6 +294,41 @@ void VideoCapture::InitializeVideo()
 
 #include <iostream>
 
+void printPixelFormat(GUID uid) {
+    if (uid == MEDIASUBTYPE_ARGB32)
+        std::cout << "MEDIASUBTYPE_ARGB32" << std::endl;
+    else if (uid == MEDIASUBTYPE_RGB32)
+        std::cout << "MEDIASUBTYPE_RGB32" << std::endl;
+    else if (uid == MEDIASUBTYPE_RGB24)
+        std::cout << "MEDIASUBTYPE_RGB24" << std::endl;
+    else if (uid == MEDIASUBTYPE_RGB565)
+        std::cout << "MEDIASUBTYPE_RGB565" << std::endl;
+    else if (uid == MEDIASUBTYPE_RGB555)
+        std::cout << "MEDIASUBTYPE_RGB555" << std::endl;
+    else if (uid == MEDIASUBTYPE_AYUV)
+        std::cout << "MEDIASUBTYPE_AYUV" << std::endl;
+    else if (uid == MEDIASUBTYPE_I420 || uid == MEDIASUBTYPE_IYUV)
+        std::cout << "MEDIASUBTYPE_IYUV" << std::endl;
+    else if (uid == MEDIASUBTYPE_YV12)
+        std::cout << "MEDIASUBTYPE_YV12" << std::endl;
+    else if (uid == MEDIASUBTYPE_UYVY)
+        std::cout << "MEDIASUBTYPE_UYVY" << std::endl;
+    else if (uid == MEDIASUBTYPE_YUYV || uid == MEDIASUBTYPE_YUY2)
+        std::cout << "MEDIASUBTYPE_YUYV" << std::endl;
+    else if (uid == MEDIASUBTYPE_NV12)
+        std::cout << "MEDIASUBTYPE_NV12" << std::endl;
+    else if (uid == MEDIASUBTYPE_IMC1)
+        std::cout << "MEDIASUBTYPE_IMC1" << std::endl;
+    else if (uid == MEDIASUBTYPE_IMC2)
+        std::cout << "MEDIASUBTYPE_IMC2" << std::endl;
+    else if (uid == MEDIASUBTYPE_IMC3)
+        std::cout << "MEDIASUBTYPE_IMC3" << std::endl;
+    else if (uid == MEDIASUBTYPE_IMC4)
+        std::cout << "MEDIASUBTYPE_IMC4" << std::endl;
+    else
+        std::cout << "broken format" << std::endl;
+}
+
 void VideoCapture::printCapabilities() {
     HRESULT hr;
     AM_MEDIA_TYPE *pmt = NULL;
@@ -321,6 +356,7 @@ void VideoCapture::printCapabilities() {
     for (int iIndex = 0; iIndex < iCount; ++iIndex) {
         hr = pConfig->GetStreamCaps(iIndex, &pmt, reinterpret_cast<BYTE*>(&scc));
 
+        printPixelFormat(pmt->subtype);
         if (pmt->majortype == MEDIATYPE_Video
             && pmt->formattype == FORMAT_VideoInfo) {
             pvi = reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat);
