@@ -8,7 +8,8 @@
 #include <QLabel>
 #include <QImage>
 
-#include "WebcamWindow.hxx"
+#include "WebcamWindow.h"
+#include "VideoDevice.h"
 
 WebcamWindow::WebcamWindow(QWidget *parent):
 		QMainWindow(parent),
@@ -22,9 +23,30 @@ WebcamWindow::~WebcamWindow() {
 
 }
 
-void WebcamWindow::processFrame(const unsigned char* data, int len) {
-	// TODO resolution and format QImage::Format_RGB666
-	QImage newFrame(data, 1280, 720, QImage::Format_RGB888);
+QImage::Format getImageFormat(GUID uid) {
+	if (uid == MEDIASUBTYPE_ARGB32) {
+		return QImage::Format_ARGB32;
+	}
+	if (uid == MEDIASUBTYPE_RGB32) {
+		return QImage::Format_RGB32;
+	}
+	if (uid == MEDIASUBTYPE_RGB24) {
+		return QImage::Format_RGB888;
+	}
+	if (uid == MEDIASUBTYPE_RGB555) {
+		return QImage::Format_RGB555;
+	}
+    return QImage::Format_Invalid;
+}
+
+void WebcamWindow::processFrame(const unsigned char* data, int len, VideoDevice* device) {
+        if (!device) {
+            return;
+        }
+
+        auto format = getImageFormat(device->getCurrentProperties().pixelFormat);
+        QImage newFrame(data, device->getCurrentProperties().width,
+                        device->getCurrentProperties().height, format);
 	m_frameMutex.lock();
 	m_frame = newFrame.mirrored(false);
 	m_frame = m_frame.rgbSwapped();

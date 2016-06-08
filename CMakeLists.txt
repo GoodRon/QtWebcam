@@ -35,9 +35,8 @@ set(QT_LIBS Qt5::Core Qt5::Widgets Qt5::Gui)
 
 set(SRC main.cpp
 		WebcamWindow.cpp
-#		mainwindow.cpp
-                CaptureWindow.cpp
-                videocapture.cpp
+                VideoDevice.cpp
+                VideoCapture.cpp
 	)
 
 set(LIBS ${QT_LIBS}

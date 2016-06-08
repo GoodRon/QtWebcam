@@ -3,81 +3,18 @@
  * All rights reserved
  */
 
+#include <iostream>
 #include <QApplication>
 
-#include "WebcamWindow.hxx"
-
-#include "videocapture.h"
-
-/*
-#include "mainwindow.h"
-#include <QBitmap>
-#include <QSize>
-#include <QByteArray>
-
-//#include <cstdio>
-//#include "CaptureWindow.h"
-
-//CaptureWindow* cw;
-
-int main(int argc, char *argv[]) {
-//    VideoCapture* vc		= new VideoCapture();
-//    VideoDevice* devices	= vc->GetDevices();
-//    int num_devices			= vc->NumDevices();
-//
-//    for (int i=0; i<num_devices; i++)
-//    {
-//        printf("%s\n", devices[i].GetFriendlyName());
-//        devices[i].SetCallback(callback);
-//        devices[i].Start();
-//    }
-
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    w.bindBitmap(bitmap);
-    return a.exec();
-}
-
-//int main()
-//{
-//     cw = new CaptureWindow();
-
-//    VideoCapture* vc		= new VideoCapture();
-//    VideoDevice* devices	= vc->GetDevices();
-//    int num_devices			= vc->NumDevices();
-
-//    for (int i=0; i<num_devices; i++)
-//    {
-//        printf("%s\n", devices[i].GetFriendlyName());
-//        devices[i].SetCallback(callback);
-//        devices[i].Start();
-//    }
-//    cw->Show();
-
-//    return 0;
-//}
-
- static QBitmap* bitmap = nullptr;
-
-void callback(unsigned char* data, int len, int bpp, VideoDevice* dev)
-{
-    if (!bitmap) {
-        return;
-    }
-
-    QByteArray data(data, len);
-
-    QSize size(1280,720);
-    bitmap->swap(QBitmap::fromData(size, data, QImage::Format_RGB888));
-}
-*/
+#include "WebcamWindow.h"
+#include "VideoDevice.h"
+#include "VideoCapture.h"
 
 static WebcamWindow* mainWindow = nullptr;
 
-void callback(unsigned char* data, int len, int bpp, VideoDevice* dev) {
+void callback(unsigned char* data, int len, VideoDevice* device) {
     if (mainWindow) {
-        mainWindow->processFrame(data, len);
+        mainWindow->processFrame(data, len, device);
     }
 }
 
@@ -87,16 +24,17 @@ int main(int argc, char *argv[]) {
     mainWindow = &window;
     window.show();
 
-    VideoCapture* vc		= new VideoCapture();
-    VideoDevice* devices	= vc->GetDevices();
-    int num_devices			= vc->NumDevices();
+    VideoCapture vc;
+    auto devices = vc.getDevices();
 
-    for (int i=0; i<num_devices; i++)
-    {
-        printf("%s\n", devices[i].GetFriendlyName());
-        devices[i].SetCallback(callback);
-        devices[i].Start();
+    for (auto& device: devices) {
+        std::cout << "Device: " << device->getFriendlyName().c_str() << std::endl;
+        device->setCallback(callback);
     }
+
+    (*devices.begin())->setCallback(callback);
+
+    (*devices.begin())->start();
 
     return a.exec();
 }

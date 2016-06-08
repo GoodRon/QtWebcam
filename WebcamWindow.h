@@ -11,6 +11,7 @@
 #include <QImage>
 
 class QLabel;
+class VideoDevice;
 
 class WebcamWindow : public QMainWindow {
 	Q_OBJECT
@@ -19,7 +20,7 @@ public:
 	WebcamWindow(QWidget *parent = 0);
 	virtual ~WebcamWindow();
 
-	void processFrame(const unsigned char* data, int len);
+        void processFrame(const unsigned char* data, int len, VideoDevice* device);
 
 private Q_SLOTS:
 	void presentFrame();
