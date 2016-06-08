@@ -27,6 +27,7 @@ void WebcamWindow::processFrame(const unsigned char* data, int len) {
 	QImage newFrame(data, 1280, 720, QImage::Format_RGB888);
 	m_frameMutex.lock();
 	m_frame = newFrame.mirrored(false);
+	m_frame = m_frame.rgbSwapped();
 	m_frameMutex.unlock();
 
 	QMetaObject::invokeMethod(this, "presentFrame", Qt::QueuedConnection);
