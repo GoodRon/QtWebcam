@@ -53,10 +53,10 @@ VideoCapture::VideoCapture():
 
     // we have to use this construct, because other
     // filters may have been added to the graph
-    m_control->Run();
-    for (auto& device: m_devices) {
-        device->stop();
-    }
+//    m_control->Run();
+//    for (auto& device: m_devices) {
+//        device->stop();
+//    }
 }
 
 VideoCapture::~VideoCapture() {
@@ -64,6 +64,25 @@ VideoCapture::~VideoCapture() {
 
 std::vector<std::shared_ptr<VideoDevice>> VideoCapture::getDevices() const {
     return m_devices;
+}
+
+bool VideoCapture::runControl() {
+	HRESULT hr = m_control->Run();
+	if (hr < 0) {
+		return false;
+	}
+	return true;
+}
+
+bool VideoCapture::stopControl() {
+    for (auto& device: m_devices) {
+        device->stop();
+    }
+	HRESULT hr = m_control->Stop();
+	if (hr < 0) {
+		return false;
+	}
+	return true;
 }
 
 bool VideoCapture::initializeGraph() {
@@ -271,6 +290,11 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
         return false;
     }
 
+    if (device->m_config) {
+        device->m_config->Release();
+    }
+    device->m_config = pConfig;
+
     int iCount = 0;
     int iSize = 0;
     hr = pConfig->GetNumberOfCapabilities(&iCount, &iSize);
@@ -296,6 +320,7 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
                 pmt->formattype == FORMAT_VideoInfo) {
             pvi = reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat);
 
+            properties.mediaType = *pmt;
             properties.width = pvi->bmiHeader.biWidth;
             properties.height = pvi->bmiHeader.biHeight;
             properties.pixelFormat = pmt->subtype;

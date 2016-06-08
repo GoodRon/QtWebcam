@@ -48,7 +48,9 @@ void WebcamWindow::processFrame(const unsigned char* data, int len, VideoDevice*
         QImage newFrame(data, device->getCurrentProperties().width,
                         device->getCurrentProperties().height, format);
 	m_frameMutex.lock();
-	m_frame = newFrame.mirrored(false);
+        m_frame = newFrame.mirrored(device->getCurrentProperties().isFlippedHorizontal,
+                                    !device->getCurrentProperties().isFlippedVertical);
+        // TODO check format
 	m_frame = m_frame.rgbSwapped();
 	m_frameMutex.unlock();
 

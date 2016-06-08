@@ -21,8 +21,9 @@ typedef void (*VideoCaptureCallback)(unsigned char* data, int len, VideoDevice* 
 class VideoDevice {
 public:
     struct Properties {
-        Properties() : width(0), height(0), pixelFormat(),
+        Properties() : mediaType(), width(0), height(0), pixelFormat(),
             isFlippedHorizontal(false), isFlippedVertical(false) {}
+        AM_MEDIA_TYPE mediaType;
         LONG width;
         LONG height;
         GUID pixelFormat;
@@ -37,6 +38,7 @@ public:
     std::wstring getFriendlyName() const;
     std::vector<VideoDevice::Properties> getPropertiesList() const;
     VideoDevice::Properties getCurrentProperties() const;
+    bool setCurrentProperties(const VideoDevice::Properties& properties);
     void setCallback(VideoCaptureCallback callback);
     bool start();
     bool stop();
@@ -54,6 +56,7 @@ private:
 
     ISampleGrabber* m_sampleGrabber;
     IFilterGraph2* m_graph;
+    IAMStreamConfig* m_config;
 
     class CallbackHandler : public ISampleGrabberCB {
     public:

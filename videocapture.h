@@ -21,6 +21,9 @@ public:
 
     std::vector<std::shared_ptr<VideoDevice>> getDevices() const;
 
+    bool runControl();
+    bool stopControl();
+
 private:
     bool initializeGraph();
     bool initializeVideo();

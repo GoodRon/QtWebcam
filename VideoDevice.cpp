@@ -18,11 +18,15 @@ VideoDevice::VideoDevice():
     m_nullRenderer(nullptr),
     m_sampleGrabber(nullptr),
     m_graph(nullptr),
+    m_config(nullptr),
     m_callbackHandler(nullptr) {
     m_callbackHandler = new CallbackHandler(this);
 }
 
 VideoDevice::~VideoDevice() {
+    if (m_config) {
+        m_config->Release();
+    }
     delete m_callbackHandler;
 }
 
@@ -40,6 +44,18 @@ std::vector<VideoDevice::Properties> VideoDevice::getPropertiesList() const {
 
 VideoDevice::Properties VideoDevice::getCurrentProperties() const {
     return m_currentProperties;
+}
+
+bool VideoDevice::setCurrentProperties(const VideoDevice::Properties& properties) {
+    stop();
+    m_currentProperties = properties;
+
+    HRESULT hr = m_config->SetFormat(const_cast<AM_MEDIA_TYPE*>(&properties.mediaType));
+    if (hr < 0) {
+        return false;
+    }
+    start();
+    return true;
 }
 
 void VideoDevice::setCallback(VideoCaptureCallback callback) {
