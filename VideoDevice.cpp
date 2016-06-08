@@ -28,12 +28,14 @@ VideoDevice::~VideoDevice() {
         m_config->Release();
     }
     delete m_callbackHandler;
+	/*
     SAFE_RELEASE(m_config);
     SAFE_RELEASE(m_graph);
     SAFE_RELEASE(m_sampleGrabber);
     SAFE_RELEASE(m_nullRenderer);
     SAFE_RELEASE(m_sampleGrabberFilter);
     SAFE_RELEASE(m_sourceFilter);
+	*/
 }
 
 int VideoDevice::getId() const {

@@ -35,7 +35,11 @@ std::string getFormatName(GUID uid) {
 }
 
 int main(int argc, char *argv[]) {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
+	QString pluginPath = "./plugins";
+    std::cout << "plugin path: " << pluginPath.toUtf8().constData() << std::endl;
+    app.addLibraryPath("./plugins");
+
     WebcamWindow window;
     mainWindow = &window;
     window.show();
@@ -65,5 +69,5 @@ int main(int argc, char *argv[]) {
     }
     vc.runControl();
 
-    return a.exec();
+    return app.exec();
 }

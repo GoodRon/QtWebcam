@@ -61,9 +61,11 @@ VideoCapture::VideoCapture():
 
 VideoCapture::~VideoCapture() {
     stopControl();
+	/*
     SAFE_RELEASE(m_control);
     SAFE_RELEASE(m_capture);
     SAFE_RELEASE(m_graph);
+	*/
 }
 
 std::vector<std::shared_ptr<VideoDevice>> VideoCapture::getDevices() const {

@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
+if(NOT DEFINED CMAKE_INSTALL_PREFIX)
+    set(CMAKE_INSTALL_PREFIX "../install")
+endif()
+
 if(NOT DEFINED CMAKE_PREFIX_PATH)
 	if(MSVC)
 		set(CMAKE_PREFIX_PATH "F:\\soft\\Qt\\5.5\\msvc2013")
@@ -46,3 +50,10 @@ set(LIBS ${QT_LIBS}
 add_executable(webcam ${SRC})
 target_link_libraries(webcam ${LIBS})
 install(TARGETS webcam RUNTIME DESTINATION ${BIN_DIR}/)
+
+foreach(lib ${QT_LIBS})
+    get_target_property(DLL ${lib} "LOCATION")
+    install(FILES ${DLL} DESTINATION bin)
+endforeach()
+get_target_property(DLL Qt5::QWindowsIntegrationPlugin "LOCATION")
+install(FILES ${DLL} DESTINATION bin/platforms)
