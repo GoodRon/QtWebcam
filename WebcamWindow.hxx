@@ -20,6 +20,8 @@ public:
 	virtual ~WebcamWindow();
 
 	void processFrame(const unsigned char* data, int len);
+
+private Q_SLOTS:
 	void presentFrame();
 
 private:
