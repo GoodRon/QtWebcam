@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
 	controlLayout->addWidget(cameraList);
 	controlGroup->setLayout(controlLayout);
 
-        timerId = startTimer(1000);
+	timerId = startTimer(30);
 }
 
 MainWindow::~MainWindow()
@@ -44,7 +44,9 @@ void MainWindow::bindBitmap(QBitmap* bitmap) {
     m_bitmap = bitmap;
 }
 
+#include <iostream>
 void MainWindow::timerEvent(QTimerEvent *event) {
+	std::cout << "tick" << std::endl;
 	const QPixmap* pixmap = reinterpret_cast<QPixmap*>(m_bitmap);
     imageLabel->setPixmap(*pixmap);
     imageLabel->repaint();

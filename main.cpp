@@ -1,43 +1,35 @@
-#include "mainwindow.h"
+/*
+ * Copyright (c) 2016, Roman Meyta <theshrodingerscat@gmail.com>
+ * All rights reserved
+ */
+
 #include <QApplication>
+
+#include "WebcamWindow.hxx"
+
+/*
+#include "mainwindow.h"
 #include <QBitmap>
 #include <QSize>
+#include <QByteArray>
 
-#include <cstdio>
-#include "videocapture.h"
-#include "CaptureWindow.h"
+//#include <cstdio>
+//#include "videocapture.h"
+//#include "CaptureWindow.h"
 
-CaptureWindow* cw;
-
-static QBitmap* bitmap = nullptr;
-
-void callback(unsigned char* data, int len, int bpp, VideoDevice* dev)
-{
-//    int id = dev->GetId()-1;
-//    int x = 330 * (id%2) + 10;
-//    int y = 250 * (id/2) + 10;
-
-//    cw->DrawCapture(0,0,1280,720,bpp,data);
-
-    if (!bitmap) {
-        return;
-    }
-
-    QSize size(1280,720);
-    bitmap->swap(QBitmap::fromData(size, data, QImage::Format_RGB888));
-}
+//CaptureWindow* cw;
 
 int main(int argc, char *argv[]) {
-    VideoCapture* vc		= new VideoCapture();
-    VideoDevice* devices	= vc->GetDevices();
-    int num_devices			= vc->NumDevices();
-
-    for (int i=0; i<num_devices; i++)
-    {
-        printf("%s\n", devices[i].GetFriendlyName());
-        devices[i].SetCallback(callback);
-        devices[i].Start();
-    }
+//    VideoCapture* vc		= new VideoCapture();
+//    VideoDevice* devices	= vc->GetDevices();
+//    int num_devices			= vc->NumDevices();
+//
+//    for (int i=0; i<num_devices; i++)
+//    {
+//        printf("%s\n", devices[i].GetFriendlyName());
+//        devices[i].SetCallback(callback);
+//        devices[i].Start();
+//    }
 
     QApplication a(argc, argv);
     MainWindow w;
@@ -65,3 +57,28 @@ int main(int argc, char *argv[]) {
 //    return 0;
 //}
 
+ static QBitmap* bitmap = nullptr;
+
+void callback(unsigned char* data, int len, int bpp, VideoDevice* dev)
+{
+    if (!bitmap) {
+        return;
+    }
+
+    QByteArray data(data, len);
+
+    QSize size(1280,720);
+    bitmap->swap(QBitmap::fromData(size, data, QImage::Format_RGB888));
+}
+*/
+
+void callback() {
+
+}
+
+int main(int argc, char *argv[]) {
+    QApplication a(argc, argv);
+    WebcamWindow window;
+    window.show();
+    return a.exec();
+}

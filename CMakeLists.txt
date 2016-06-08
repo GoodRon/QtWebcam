@@ -34,13 +34,14 @@ endif()
 set(QT_LIBS Qt5::Core Qt5::Widgets Qt5::Gui)
 
 set(SRC main.cpp
-		mainwindow.cpp
-                CaptureWindow.cpp
-                videocapture.cpp
+		WebcamWindow.cpp
+#		mainwindow.cpp
+#                CaptureWindow.cpp
+#                videocapture.cpp
 	)
 
 set(LIBS ${QT_LIBS}
-                strmiids Ole32 OleAut32
+#                strmiids Ole32 OleAut32
 	)
 
 add_executable(webcam ${SRC})

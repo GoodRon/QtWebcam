@@ -34,7 +34,7 @@ private:
 	QGroupBox* videoGroup;
 	QGroupBox* controlGroup;
 	QComboBox* cameraList;
-        QBitmap* m_bitmap;
+	QBitmap* m_bitmap;
 };
 
 #endif // MAINWINDOW_H
