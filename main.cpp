@@ -7,6 +7,8 @@
 
 #include "WebcamWindow.hxx"
 
+#include "videocapture.h"
+
 /*
 #include "mainwindow.h"
 #include <QBitmap>
@@ -14,7 +16,6 @@
 #include <QByteArray>
 
 //#include <cstdio>
-//#include "videocapture.h"
 //#include "CaptureWindow.h"
 
 //CaptureWindow* cw;
@@ -72,13 +73,30 @@ void callback(unsigned char* data, int len, int bpp, VideoDevice* dev)
 }
 */
 
-void callback() {
+static WebcamWindow* mainWindow = nullptr;
 
+void callback(unsigned char* data, int len, int bpp, VideoDevice* dev) {
+    if (mainWindow) {
+        mainWindow->processFrame(data, len);
+    }
 }
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     WebcamWindow window;
+    mainWindow = &window;
     window.show();
+
+    VideoCapture* vc		= new VideoCapture();
+    VideoDevice* devices	= vc->GetDevices();
+    int num_devices			= vc->NumDevices();
+
+    for (int i=0; i<num_devices; i++)
+    {
+        printf("%s\n", devices[i].GetFriendlyName());
+        devices[i].SetCallback(callback);
+        devices[i].Start();
+    }
+
     return a.exec();
 }
