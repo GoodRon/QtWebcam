@@ -24,7 +24,7 @@ QImage makeRGB32Image(const unsigned char* data, unsigned len, unsigned width, u
 QImage makeRGB24Image(const unsigned char* data, unsigned len, unsigned width, unsigned height);
 QImage makeRGB555Image(const unsigned char* data, unsigned len, unsigned width, unsigned height);
 QImage makeRGB565Image(const unsigned char* data, unsigned len, unsigned width, unsigned height);
-QImage makeMjpgImage(const unsigned char* data, unsigned len, unsigned width, unsigned height);
+QImage makeJPGImage(const unsigned char* data, unsigned len, unsigned width, unsigned height);
 QImage dummy(const unsigned char* data, unsigned len, unsigned width, unsigned height);
 
 static ImageFormatRow ImageFormatTable[] = {
@@ -33,8 +33,8 @@ static ImageFormatRow ImageFormatTable[] = {
     {"RGB24", MEDIASUBTYPE_RGB24, makeRGB24Image},
     {"RGB555", MEDIASUBTYPE_RGB555, makeRGB555Image},
     {"RGB565", MEDIASUBTYPE_RGB565, makeRGB565Image},
-    {"MJPG", MEDIASUBTYPE_MJPG, makeMjpgImage},
-    {"JPG", MEDIASUBTYPE_IJPG, makeMjpgImage},
+    {"MJPG", MEDIASUBTYPE_MJPG, makeJPGImage},
+    {"JPG", MEDIASUBTYPE_IJPG, makeJPGImage},
     {"AYUV", MEDIASUBTYPE_AYUV, dummy},
     {"IYUV", MEDIASUBTYPE_IYUV, dummy},
     {"YV12", MEDIASUBTYPE_YV12, dummy},

@@ -37,7 +37,7 @@ QImage makeRGB565Image(const unsigned char* data, unsigned len,
     return simpleQimage(data, len, width, height, QImage::Format_RGB16).rgbSwapped();
 }
 
-QImage makeMjpgImage(const unsigned char* data, unsigned len,
+QImage makeJPGImage(const unsigned char* data, unsigned len,
                      unsigned width, unsigned height) {
     QByteArray bytes(reinterpret_cast<const char*>(data), len);
     QImage image;
