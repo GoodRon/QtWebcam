@@ -30,8 +30,12 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     m_windowGroup(new QGroupBox),
     m_startButton(new QPushButton("Turn On")),
     m_stopButton(new QPushButton("Turn Off")),
+    m_devicesLabel(new QLabel("Devices")),
     m_devices(new QComboBox),
+    m_resolutionsLabel(new QLabel("Resolutions")),
     m_resolutions(new QComboBox),
+    m_devicesGroup(new QGroupBox),
+    m_devicesLayout(new QVBoxLayout),
     m_vsplitter(new QSplitter),
     m_flipButton(new QPushButton("Flip frame")),
     m_videoCapture(nullptr),
@@ -41,8 +45,14 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     setWindowTitle("QtWebcam");
     setWindowFlags(this->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
 
-    m_controlLayout->addWidget(m_devices);
-    m_controlLayout->addWidget(m_resolutions);
+    m_devicesLayout->addWidget(m_devicesLabel);
+    m_devicesLayout->addWidget(m_devices);
+    m_devicesLayout->addWidget(m_resolutionsLabel);
+    m_devicesLayout->addWidget(m_resolutions);
+    m_devicesGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_devicesGroup->setLayout(m_devicesLayout);
+
+    m_controlLayout->addWidget(m_devicesGroup);
     m_controlLayout->addWidget(m_vsplitter);
     m_controlLayout->addWidget(m_startButton);
     m_controlLayout->addWidget(m_stopButton);

@@ -130,14 +130,34 @@ private:
     QPushButton* m_stopButton;
 
     /**
+     * @brief Hint
+     */
+    QLabel* m_devicesLabel;
+
+    /**
      * @brief List of available devices
      */
     QComboBox* m_devices;
 
     /**
+     * @brief Hint
+     */
+    QLabel* m_resolutionsLabel;
+
+    /**
      * @brief List of available resolutions
      */
     QComboBox* m_resolutions;
+
+    /**
+     * @brief Devices group
+     */
+    QGroupBox* m_devicesGroup;
+
+    /**
+     * @brief Devices layout
+     */
+    QVBoxLayout* m_devicesLayout;
 
     /**
      * @brief Vertical splitter
