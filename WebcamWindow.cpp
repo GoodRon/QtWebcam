@@ -10,17 +10,50 @@
 
 #include "WebcamWindow.h"
 #include "VideoDevice.h"
+#include "VideoCapture.h"
+
+void callback(unsigned char* data, int len, VideoDevice* device) {
+	WebcamWindow::getInstance().processFrame(data, len, device);
+}
 
 WebcamWindow::WebcamWindow(QWidget *parent):
 		QMainWindow(parent),
 		m_viewport(new QLabel),
 		m_frameMutex(),
-		m_frame() {
-	setCentralWidget(m_viewport);
+		m_frame(),
+		m_controlLayout(new QVBoxLayout),
+		m_controlGroup(new QGroupBox),
+		m_windowLayout(new QHBoxLayout),
+		m_windowGroup(new QGroupBox),
+		m_startButton(new QPushButton),
+		m_stopButton(new QPushButton),
+		m_devices(new QComboBox),
+		m_resolutions(new QComboBox),
+		m_vsplitter(new QSplitter),
+		m_videoCapture(nullptr) {
+	setWindowTitle("QtWebcam");
+
+	m_controlLayout->addWidget(m_devices);
+	m_controlLayout->addWidget(m_resolutions);
+	m_controlLayout->addWidget(m_vsplitter);
+	m_controlLayout->addWidget(m_startButton);
+	m_controlLayout->addWidget(m_stopButton);
+	m_controlGroup->setLayout(m_controlLayout);
+	m_controlGroup->setMinimumWidth(200);
+	m_controlGroup->setMaximumWidth(200);
+
+	m_viewport->setMinimumSize(320, 240);
+	m_windowLayout->addWidget(m_viewport);
+	m_windowLayout->addWidget(m_controlGroup);
+	m_windowGroup->setLayout(m_windowLayout);
+	setCentralWidget(m_windowGroup);
+
+	m_videoCapture = new VideoCapture(callback);
+	m_videoCapture->startCapture();
 }
 
 WebcamWindow::~WebcamWindow() {
-
+	delete m_videoCapture;
 }
 
 QImage::Format getImageFormat(GUID uid) {
