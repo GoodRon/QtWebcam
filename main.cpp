@@ -20,7 +20,7 @@ void callback(unsigned char* data, int len, VideoDevice* device) {
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    QString pluginPath = app.applicationDirPath(); + "/plugins";
+    QString pluginPath = app.applicationDirPath() + "/plugins";
     std::cout << "plugin path: " << pluginPath.toUtf8().constData() << std::endl;
     app.addLibraryPath(pluginPath);
 
@@ -29,11 +29,16 @@ int main(int argc, char *argv[]) {
     window.show();
 
     VideoCapture vc(callback);
-    vc.startCapture();
+	if (!vc.startCapture()) {
+		std::cout << "Can't start capture" << std::endl;
+	}
+	
+	vc.stopCapture();
     auto resolutions = vc.getActiveDeviceResolutions().size();
-    vc.changeActiveDeviceResolution(0);
-    vc.changeActiveDeviceResolution(1);
-    vc.changeActiveDeviceResolution(resolutions - 1);
+	if (!vc.changeActiveDeviceResolution(0)) {
+		std::cout << "Can't change resolution" << std::endl;
+	}
+	vc.startCapture();
 
     return app.exec();
 }

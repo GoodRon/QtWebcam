@@ -6,6 +6,7 @@
 #ifndef VIDEO_CAPTURE_CALLBACK_H
 #define VIDEO_CAPTURE_CALLBACK_H
 
+class VideoDevice;
 typedef void (*VideoCaptureCallback)(unsigned char* data, int len, VideoDevice* dev);
 
 #endif // VIDEO_CAPTURE_CALLBACK_H

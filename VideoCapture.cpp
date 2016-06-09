@@ -71,20 +71,19 @@ VideoCapture::VideoCapture(VideoCaptureCallback callback):
 }
 
 VideoCapture::~VideoCapture() {
+	for (auto& device : m_devices) {
+		device->stop();
+	}
+
     stopControl();
-    if (m_control) {
-        m_control->Release();
-    }
-    if (m_capture) {
-        m_capture->Release();
-    }
+	
     if (m_graph) {
         m_graph->Release();
     }
 }
 
-std::vector<std::string> VideoCapture::getDevicesNames() const {
-    vector<string> names;
+std::vector<std::wstring> VideoCapture::getDevicesNames() const {
+    vector<wstring> names;
     for (auto& device: m_devices) {
         names.push_back(device->getFriendlyName());
     }
@@ -124,12 +123,12 @@ bool VideoCapture::changeActiveDeviceResolution(unsigned resolutionNum) {
     if (m_activeDeviceNum >= m_devices.size()) {
         return false;
     }
-    bool wasActive = m_devices[m_activeDeviceNum]->isActive();
-    if (wasActive) {
-        if (!m_devices[m_activeDeviceNum]->stop()) {
-            return false;
-        }
-    }
+
+	if (m_readyForCapture) {
+		if (!stopControl()) {
+			return false;
+		}
+	}
 
     auto propertiesList = m_devices[m_activeDeviceNum]->getPropertiesList();
     if (resolutionNum >= propertiesList.size()) {
@@ -139,24 +138,24 @@ bool VideoCapture::changeActiveDeviceResolution(unsigned resolutionNum) {
         return false;
     }
 
-    if (wasActive) {
-        if (!m_devices[m_activeDeviceNum]->start()) {
-            return false;
-        }
-    }
+	if (m_readyForCapture) {
+		if (!runControl()) {
+			return false;
+		}
+	}
     return true;
 }
 
-bool VideoCapture::startCapture(unsigned deviceNum) {
+bool VideoCapture::startCapture() {
     if (!m_readyForCapture) {
         if (!runControl()) {
             return false;
         }
     }
 
-    if (!setActiveDeviceNum(deviceNum)) {
-        return false;
-    }
+	if (m_activeDeviceNum >= m_devices.size()) {
+		return false;
+	}
     m_devices[m_activeDeviceNum]->start();
     return true;
 }

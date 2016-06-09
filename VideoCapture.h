@@ -21,13 +21,13 @@ public:
     VideoCapture(VideoCaptureCallback callback);
     ~VideoCapture();
 
-	std::vector<std::string> getDevicesNames() const;
+	std::vector<std::wstring> getDevicesNames() const;
 	unsigned getActiveDeviceNum() const;
 	std::vector<std::string> getActiveDeviceResolutions() const;
 	bool changeActiveDevice(unsigned deviceNum);
 	bool changeActiveDeviceResolution(unsigned resolutionNum);
 
-	bool startCapture(unsigned deviceNum = m_activeDeviceNum);
+	bool startCapture();
 	bool stopCapture();
 
 private:

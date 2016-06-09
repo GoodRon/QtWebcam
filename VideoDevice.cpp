@@ -25,7 +25,7 @@ VideoDevice::VideoDevice():
 }
 
 VideoDevice::~VideoDevice() {
-    if (m_config) {
+	if (m_config) {
         m_config->Release();
     }
     if (m_graph) {
@@ -63,14 +63,23 @@ VideoDevice::Properties VideoDevice::getCurrentProperties() const {
 }
 
 bool VideoDevice::setCurrentProperties(const VideoDevice::Properties& properties) {
-    stop();
+	bool wasActive = m_isActive;
+	if (wasActive) {
+		if (!stop()) {
+			return false;
+		}
+	}
     m_currentProperties = properties;
 
     HRESULT hr = m_config->SetFormat(const_cast<AM_MEDIA_TYPE*>(&properties.mediaType));
     if (hr < 0) {
         return false;
     }
-    start();
+	if (wasActive) {
+		if (!start()) {
+			return false;
+		}
+	}
     return true;
 }
 
