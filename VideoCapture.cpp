@@ -11,8 +11,6 @@
 #include "SampleGrabber.h"
 #include "ImageFormats.h"
 
-#include <sstream>
-
 using namespace std;
 
 HRESULT getPin(IBaseFilter* pFilter, PIN_DIRECTION PinDir, IPin** ppPin) {
@@ -51,7 +49,7 @@ VideoCapture::VideoCapture(VideoCaptureCallback callback):
     initializeGraph();
     initializeVideo();
 
-	runControl();
+    runControl();
 
     for (auto& device: m_devices) {
         device->setCallback(callback);
@@ -172,9 +170,9 @@ bool VideoCapture::runControl() {
     }
     m_readyForCapture = true;
 
-	for (auto& device : m_devices) {
-		device->stop();
-	}
+    for (auto& device : m_devices) {
+        device->stop();
+    }
     return true;
 }
 
@@ -219,11 +217,11 @@ bool VideoCapture::initializeGraph() {
 }
 
 wstring addIdToName(const std::wstring& name, int id) {
-	stringstream stream;
-	stream << "id" << id;
-	string uniquePostfix = stream.str();
-	wstring newName = name + wstring(uniquePostfix.begin(), uniquePostfix.end());
-	return newName;
+    stringstream stream;
+    stream << "id" << id;
+    string uniquePostfix = stream.str();
+    wstring newName = name + wstring(uniquePostfix.begin(), uniquePostfix.end());
+    return newName;
 }
 
 bool VideoCapture::initializeVideo() {
@@ -252,7 +250,7 @@ bool VideoCapture::initializeVideo() {
 
     int devNum = 0;
     while (enumMoniker->Next(1, &moniker, 0) == S_OK) {
-		++devNum;
+        ++devNum;
         hr = moniker->BindToStorage(nullptr, nullptr, IID_IPropertyBag,
                                     reinterpret_cast<void**>(&pbag));
         if (hr >= 0) {
@@ -271,7 +269,7 @@ bool VideoCapture::initializeVideo() {
             device->m_id = devNum;
             std::wstring wname(name.bstrVal, SysStringLen(name.bstrVal));
             device->m_friendlyName = device->m_filterName = wname;
-			device->m_filterName = addIdToName(device->m_filterName, device->m_id);
+            device->m_filterName = addIdToName(device->m_filterName, device->m_id);
 
             // add a filter for the device
             hr = m_graph->AddSourceFilterForMoniker(moniker, nullptr, device->m_filterName.c_str(),

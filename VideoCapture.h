@@ -33,7 +33,7 @@ public:
 private:
     bool initializeGraph();
     bool initializeVideo();
-	void disconnectFilters(VideoDevice* device);
+    void disconnectFilters(VideoDevice* device);
     bool updateDeviceCapabilities(VideoDevice* device);
     bool runControl();
     bool stopControl();

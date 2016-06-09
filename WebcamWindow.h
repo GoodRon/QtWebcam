@@ -24,8 +24,8 @@ class WebcamWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-	WebcamWindow(QWidget *parent = nullptr);
-	virtual ~WebcamWindow();
+    WebcamWindow(QWidget *parent = nullptr);
+    virtual ~WebcamWindow();
 
     void processFrame(const unsigned char* data, int len, VideoDevice* device);
 
@@ -33,7 +33,7 @@ private Q_SLOTS:
     void presentFrame();
     void changeResolution(int resolutionNum);
     void changeDevice(int deviceNum);
-	void flipFrame();
+    void flipFrame();
     void startCapture();
     void stopCapture();
 
@@ -50,10 +50,10 @@ private:
     QComboBox* m_devices;
     QComboBox* m_resolutions;
     QSplitter* m_vsplitter;
-	QPushButton* m_flipButton;
+    QPushButton* m_flipButton;
     VideoCapture* m_videoCapture;
     bool m_isCapturing;
-	bool m_isFlipped;
+    bool m_isFlipped;
 };
 
 

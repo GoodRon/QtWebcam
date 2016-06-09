@@ -22,10 +22,10 @@
 static WebcamWindow* mainWindow = nullptr;
 
 static void callback(unsigned char* data, int len, VideoDevice* device) {
-	if (!mainWindow) {
-		return;
-	}
-	mainWindow->processFrame(data, len, device);
+    if (!mainWindow) {
+        return;
+    }
+    mainWindow->processFrame(data, len, device);
 }
 
 WebcamWindow::WebcamWindow(QWidget *parent):
@@ -42,27 +42,27 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     m_devices(new QComboBox),
     m_resolutions(new QComboBox),
     m_vsplitter(new QSplitter),
-	m_flipButton(new QPushButton("Flip frame")),
+    m_flipButton(new QPushButton("Flip frame")),
     m_videoCapture(nullptr),
     m_isCapturing(false),
-	m_isFlipped(false) {
-	mainWindow = this;
+    m_isFlipped(false) {
+    mainWindow = this;
 
     setWindowTitle("QtWebcam");
-	setWindowFlags(this->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
+    setWindowFlags(this->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
 
     m_controlLayout->addWidget(m_devices);
     m_controlLayout->addWidget(m_resolutions);
     m_controlLayout->addWidget(m_vsplitter);
     m_controlLayout->addWidget(m_startButton);
     m_controlLayout->addWidget(m_stopButton);
-	m_controlLayout->addWidget(m_flipButton);
+    m_controlLayout->addWidget(m_flipButton);
     m_controlGroup->setLayout(m_controlLayout);
     m_controlGroup->setMinimumWidth(200);
     m_controlGroup->setMaximumWidth(200);
 
-	m_stopButton->setEnabled(false);
-	m_flipButton->setEnabled(false);
+    m_stopButton->setEnabled(false);
+    m_flipButton->setEnabled(false);
 
     m_viewport->setMinimumSize(320, 240);
     m_windowLayout->addWidget(m_viewport);
@@ -89,12 +89,12 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     connect(m_devices, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void(WebcamWindow::*)(int)>(&WebcamWindow::changeDevice));
     connect(m_startButton, &QPushButton::released, this, &WebcamWindow::startCapture);
     connect(m_stopButton, &QPushButton::released, this, &WebcamWindow::stopCapture);
-	connect(m_flipButton, &QPushButton::released, this, &WebcamWindow::flipFrame);
+    connect(m_flipButton, &QPushButton::released, this, &WebcamWindow::flipFrame);
 }
 
 WebcamWindow::~WebcamWindow() {
-	m_devices->blockSignals(true);
-	m_resolutions->blockSignals(true);
+    m_devices->blockSignals(true);
+    m_resolutions->blockSignals(true);
     m_videoCapture->stopCapture();
     delete m_videoCapture;
 }
@@ -126,7 +126,7 @@ void WebcamWindow::presentFrame() {
     m_frameMutex.lock();
     m_viewport->setPixmap(QPixmap::fromImage(m_frame));
     m_frameMutex.unlock();
-	adjustSize();
+    adjustSize();
     m_viewport->repaint();
 }
 
@@ -134,7 +134,7 @@ void WebcamWindow::changeResolution(int resolutionNum) {
     bool wasCapturing = m_isCapturing;
     stopCapture();
     m_videoCapture->changeActiveDeviceResolution(resolutionNum);
-	adjustSize();
+    adjustSize();
     if (wasCapturing) {
         startCapture();
     }
@@ -146,12 +146,12 @@ void WebcamWindow::changeDevice(int deviceNum) {
 
     m_videoCapture->changeActiveDevice(deviceNum);
 
-	m_resolutions->clear();
-	auto deviceResolutions = m_videoCapture->getActiveDeviceResolutions();
-	for (auto& deviceResolution : deviceResolutions) {
-		QString resolution = QString::fromStdString(deviceResolution);
-		m_resolutions->addItem(resolution);
-	}
+    m_resolutions->clear();
+    auto deviceResolutions = m_videoCapture->getActiveDeviceResolutions();
+    for (auto& deviceResolution : deviceResolutions) {
+        QString resolution = QString::fromStdString(deviceResolution);
+        m_resolutions->addItem(resolution);
+    }
 
     if (wasCapturing) {
         startCapture();
@@ -159,13 +159,13 @@ void WebcamWindow::changeDevice(int deviceNum) {
 }
 
 void WebcamWindow::flipFrame() {
-	m_isFlipped = !m_isFlipped;
+    m_isFlipped = !m_isFlipped;
 }
 
 void WebcamWindow::startCapture() {
-	m_startButton->setEnabled(false);
-	m_stopButton->setEnabled(true);
-	m_flipButton->setEnabled(true);
+    m_startButton->setEnabled(false);
+    m_stopButton->setEnabled(true);
+    m_flipButton->setEnabled(true);
 
     if (m_videoCapture->startCapture()) {
         m_isCapturing = true;
@@ -173,13 +173,13 @@ void WebcamWindow::startCapture() {
 }
 
 void WebcamWindow::stopCapture() {
-	m_startButton->setEnabled(true);
-	m_stopButton->setEnabled(false);
-	m_flipButton->setEnabled(false);
+    m_startButton->setEnabled(true);
+    m_stopButton->setEnabled(false);
+    m_flipButton->setEnabled(false);
 
     if (m_videoCapture->stopCapture()) {
         m_isCapturing = false;
     }
-	m_frame.fill(Qt::GlobalColor::white);
-	presentFrame();
+    m_frame.fill(Qt::GlobalColor::white);
+    presentFrame();
 }

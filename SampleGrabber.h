@@ -18,15 +18,15 @@ DEFINE_GUID(IID_ISampleGrabberCB,
 MIDL_INTERFACE("0579154A-2B53-4994-B0D0-E773148EFF85")
 ISampleGrabberCB : public IUnknown {
 public:
-    virtual HRESULT STDMETHODCALLTYPE SampleCB( 
+    virtual HRESULT STDMETHODCALLTYPE SampleCB(
         double SampleTime,
         IMediaSample *pSample) = 0;
-        
-    virtual HRESULT STDMETHODCALLTYPE BufferCB( 
+
+    virtual HRESULT STDMETHODCALLTYPE BufferCB(
         double SampleTime,
         BYTE *pBuffer,
         long BufferLen) = 0;
-        
+
 };
 
 // {6B652FFF-11FE-4fce-92AD-0266B5D7C78F}
@@ -36,29 +36,29 @@ DEFINE_GUID(IID_ISampleGrabber,
 MIDL_INTERFACE("6B652FFF-11FE-4fce-92AD-0266B5D7C78F")
 ISampleGrabber : public IUnknown {
 public:
-    virtual HRESULT STDMETHODCALLTYPE SetOneShot( 
+    virtual HRESULT STDMETHODCALLTYPE SetOneShot(
         BOOL OneShot) = 0;
-        
-    virtual HRESULT STDMETHODCALLTYPE SetMediaType( 
+
+    virtual HRESULT STDMETHODCALLTYPE SetMediaType(
         const AM_MEDIA_TYPE *pType) = 0;
-        
-    virtual HRESULT STDMETHODCALLTYPE GetConnectedMediaType( 
+
+    virtual HRESULT STDMETHODCALLTYPE GetConnectedMediaType(
         AM_MEDIA_TYPE *pType) = 0;
-        
-    virtual HRESULT STDMETHODCALLTYPE SetBufferSamples( 
+
+    virtual HRESULT STDMETHODCALLTYPE SetBufferSamples(
         BOOL BufferThem) = 0;
-        
-    virtual HRESULT STDMETHODCALLTYPE GetCurrentBuffer( 
+
+    virtual HRESULT STDMETHODCALLTYPE GetCurrentBuffer(
         /* [out][in] */ long *pBufferSize,
         /* [out] */ long *pBuffer) = 0;
-        
-    virtual HRESULT STDMETHODCALLTYPE GetCurrentSample( 
+
+    virtual HRESULT STDMETHODCALLTYPE GetCurrentSample(
         /* [retval][out] */ IMediaSample **ppSample) = 0;
-        
-    virtual HRESULT STDMETHODCALLTYPE SetCallback( 
+
+    virtual HRESULT STDMETHODCALLTYPE SetCallback(
         ISampleGrabberCB *pCallback,
         long WhichMethodToCallback) = 0;
-        
+
 };
 
 #endif
