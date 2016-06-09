@@ -60,13 +60,13 @@ WebcamWindow::WebcamWindow(QWidget *parent):
 
 	auto devicesNames = m_videoCapture->getDevicesNames();
 	for (auto& deviceName: devicesNames) {
-		QString name = QString::fromWCharArray(wideString.c_str());
+		QString name = QString::fromWCharArray(deviceName.c_str());
 		m_devices->addItem(name);
 	}
 
 	auto deviceResolutions = m_videoCapture->getActiveDeviceResolutions();
 	for (auto& deviceResolution: deviceResolutions) {
-		QString resolution = QString::fromWCharArray(deviceResolution.c_str());
+		QString resolution = QString::fromStdString(deviceResolution);
 		m_resolutions->addItem(resolution);
 	}
 }
