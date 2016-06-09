@@ -58,7 +58,7 @@ VideoCapture::VideoCapture(VideoCaptureCallback callback):
 VideoCapture::~VideoCapture() {
     for (auto& device : m_devices) {
         device->stop();
-        disconnectFilters(device);
+        disconnectFilters(device.get());
     }
     m_devices.erase(m_devices.begin(), m_devices.end());
     stopControl();
@@ -377,35 +377,35 @@ void VideoCapture::disconnectFilters(VideoDevice* device) {
     IPin* pPin = nullptr;
     HRESULT hr = getPin(device->m_sourceFilter, PINDIR_OUTPUT, &pPin);
     if (SUCCEEDED(hr)) {
-        m_filterGraph->Disconnect(pPin);
+        m_graph->Disconnect(pPin);
         pPin->Release();
         pPin = nullptr;
     }
 
     hr = getPin(device->m_sampleGrabberFilter, PINDIR_INPUT, &pPin);
     if (SUCCEEDED(hr)) {
-        m_filterGraph->Disconnect(pPin);
+		m_graph->Disconnect(pPin);
         pPin->Release();
         pPin = nullptr;
     }
 
     hr = getPin(device->m_sampleGrabberFilter, PINDIR_OUTPUT, &pPin);
     if (SUCCEEDED(hr)) {
-        m_filterGraph->Disconnect(pPin);
+		m_graph->Disconnect(pPin);
         pPin->Release();
         pPin = nullptr;
     }
 
     hr = getPin(device->m_nullRenderer, PINDIR_INPUT, &pPin);
     if (SUCCEEDED(hr)) {
-        m_filterGraph->Disconnect(pPin);
+		m_graph->Disconnect(pPin);
         pPin->Release();
         pPin = nullptr;
     }
 
-    m_filterGraph->RemoveFilter(device->m_nullRenderer);
-    m_filterGraph->RemoveFilter(device->m_sampleGrabberFilter);
-    m_filterGraph->RemoveFilter(device->m_sourceFilter);
+	m_graph->RemoveFilter(device->m_nullRenderer);
+	m_graph->RemoveFilter(device->m_sampleGrabberFilter);
+	m_graph->RemoveFilter(device->m_sourceFilter);
 }
 
 bool checkMediaType(AM_MEDIA_TYPE* type) {
