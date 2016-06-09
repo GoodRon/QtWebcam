@@ -9,6 +9,8 @@
 #include <vector>
 #include <memory>
 
+#include "VideoCaptureCallback.h"
+
 struct IFilterGraph2;
 struct ICaptureGraphBuilder2;
 struct IMediaControl;
@@ -16,26 +18,32 @@ class VideoDevice;
 
 class VideoCapture {
 public:
-    VideoCapture();
+    VideoCapture(VideoCaptureCallback callback);
     ~VideoCapture();
 
-    std::vector<std::shared_ptr<VideoDevice>> getDevices() const;
+	std::vector<std::string> getDevicesNames() const;
+	unsigned getActiveDeviceNum() const;
+	std::vector<std::string> getActiveDeviceResolutions() const;
+	bool changeActiveDevice(unsigned deviceNum);
+	bool changeActiveDeviceResolution(unsigned resolutionNum);
 
-    bool runControl();
-    bool stopControl();
+	bool startCapture(unsigned deviceNum = m_activeDeviceNum);
+	bool stopCapture();
 
 private:
     bool initializeGraph();
     bool initializeVideo();
     bool updateDeviceCapabilities(VideoDevice* device);
+	bool runControl();
+	bool stopControl();
 
 private:
     IFilterGraph2* m_graph;
     ICaptureGraphBuilder2* m_capture;
     IMediaControl* m_control;
 
-    bool m_playing;
-
+    bool m_readyForCapture;
+	unsigned m_activeDeviceNum;
     std::vector<std::shared_ptr<VideoDevice>> m_devices;
 };
 

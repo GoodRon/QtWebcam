@@ -19,6 +19,7 @@ VideoDevice::VideoDevice():
     m_sampleGrabber(nullptr),
     m_graph(nullptr),
     m_config(nullptr),
+    m_isActive(false),
     m_callbackHandler(nullptr) {
     m_callbackHandler = new CallbackHandler(this);
 }
@@ -99,10 +100,12 @@ bool VideoDevice::start(){
             return false;
         }
     }
+    m_isActive = true;
     return true;
 }
 
 bool VideoDevice::stop() {
+    m_isActive = false;
     HRESULT hr = S_FALSE;
 
     if (m_sourceFilter) {
@@ -126,6 +129,10 @@ bool VideoDevice::stop() {
         }
     }
     return true;
+}
+
+bool VideoDevice::isActive() const {
+    return m_isActive;
 }
 
 VideoDevice::CallbackHandler::CallbackHandler(VideoDevice* device):

@@ -9,7 +9,7 @@
 #include "VideoCapture.h"
 #include "SampleGrabber.h"
 
-#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -38,18 +38,36 @@ HRESULT getPin(IBaseFilter* pFilter, PIN_DIRECTION PinDir, IPin** ppPin) {
     return E_FAIL;
 }
 
-VideoCapture::VideoCapture():
+std::string getFormatName(GUID uid) {
+    if (uid == MEDIASUBTYPE_ARGB32) {
+        return "ARGB32";
+    }
+    if (uid == MEDIASUBTYPE_RGB32) {
+        return "RGB32";
+    }
+    if (uid == MEDIASUBTYPE_RGB24) {
+        return "RGB24";
+    }
+    if (uid == MEDIASUBTYPE_RGB555) {
+        return "RGB555";
+    }
+    return "unknown format";
+}
+
+VideoCapture::VideoCapture(VideoCaptureCallback callback):
     m_graph(nullptr),
     m_capture(nullptr),
     m_control(nullptr),
-    m_playing(false),
+    m_readyForCapture(false),
+    m_activeDeviceNum(0),
     m_devices() {
     CoInitialize(NULL);
-
-	m_playing = false;
-
     initializeGraph();
     initializeVideo();
+
+    for (auto& device: m_devices) {
+        device->setCallback(callback);
+    }
 }
 
 VideoCapture::~VideoCapture() {
@@ -65,8 +83,90 @@ VideoCapture::~VideoCapture() {
     }
 }
 
-std::vector<std::shared_ptr<VideoDevice>> VideoCapture::getDevices() const {
-    return m_devices;
+std::vector<std::string> VideoCapture::getDevicesNames() const {
+    vector<string> names;
+    for (auto& device: m_devices) {
+        names.push_back(device->getFriendlyName());
+    }
+    return names;
+}
+
+std::vector<std::string> VideoCapture::getActiveDeviceResolutions() const {
+    vector<string> resolutions;
+    if (m_activeDeviceNum >= m_devices.size()) {
+        return resolutions;
+    }
+
+    auto propertiesList = m_devices[m_activeDeviceNum]->getPropertiesList();
+    for (auto& properties: propertiesList) {
+        stringstream stream;
+        stream << properties.width << "x" << properties.height << " "
+               << getFormatName(properties.pixelFormat);
+        string resolution;
+        stream >> resolution;
+        resolutions.push_back(resolution);
+    }
+    return resolutions;
+}
+
+bool VideoCapture::changeActiveDevice(unsigned deviceNum) {
+    if (!stopCapture()) {
+        return false;
+    }
+    if (deviceNum >= m_devices.size()) {
+        return false;
+    }
+    m_activeDeviceNum = deviceNum;
+    return true;
+}
+
+bool VideoCapture::changeActiveDeviceResolution(unsigned resolutionNum) {
+    if (m_activeDeviceNum >= m_devices.size()) {
+        return false;
+    }
+    bool wasActive = m_devices[m_activeDeviceNum]->isActive();
+    if (wasActive) {
+        if (!m_devices[m_activeDeviceNum]->stop()) {
+            return false;
+        }
+    }
+
+    auto propertiesList = m_devices[m_activeDeviceNum]->getPropertiesList();
+    if (resolutionNum >= propertiesList.size()) {
+        return false;
+    }
+    if (!m_devices[m_activeDeviceNum]->setCurrentProperties(propertiesList[resolutionNum])) {
+        return false;
+    }
+
+    if (wasActive) {
+        if (!m_devices[m_activeDeviceNum]->start()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool VideoCapture::startCapture(unsigned deviceNum) {
+    if (!m_readyForCapture) {
+        if (!runControl()) {
+            return false;
+        }
+    }
+
+    if (!setActiveDeviceNum(deviceNum)) {
+        return false;
+    }
+    m_devices[m_activeDeviceNum]->start();
+    return true;
+}
+
+bool VideoCapture::stopCapture() {
+    if (m_activeDeviceNum >= m_devices.size()) {
+        return false;
+    }
+    m_devices[m_activeDeviceNum]->stop();
+    return true;
 }
 
 bool VideoCapture::runControl() {
@@ -74,6 +174,7 @@ bool VideoCapture::runControl() {
 	if (hr < 0) {
 		return false;
 	}
+    m_readyForCapture = true;
 	return true;
 }
 
@@ -81,6 +182,7 @@ bool VideoCapture::stopControl() {
     for (auto& device: m_devices) {
         device->stop();
     }
+    m_readyForCapture = false;
 	HRESULT hr = m_control->Stop();
 	if (hr < 0) {
 		return false;
@@ -289,7 +391,6 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
                                   device->m_sourceFilter, IID_IAMStreamConfig,
                                   reinterpret_cast<void**>(&pConfig));
     if (hr < 0) {
-        std::cerr << "Can't find IID_IAMStreamConfig" << std::endl;
         return false;
     }
 
@@ -302,7 +403,6 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
     int iSize = 0;
     hr = pConfig->GetNumberOfCapabilities(&iCount, &iSize);
     if (hr < 0) {
-        std::cerr << "Can't GetNumberOfCapabilities" << std::endl;
         pConfig->Release();
         return false;
     }
@@ -310,7 +410,6 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
     for (int iIndex = 0; iIndex < iCount; ++iIndex) {
         hr = pConfig->GetStreamCaps(iIndex, &pmt, reinterpret_cast<BYTE*>(&scc));
         if (hr < 0) {
-            std::cerr << "Can't GetStreamCaps" << std::endl;
             continue;
         }
 
@@ -327,9 +426,6 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
             properties.width = pvi->bmiHeader.biWidth;
             properties.height = pvi->bmiHeader.biHeight;
             properties.pixelFormat = pmt->subtype;
-
-            std::cout << "width " << pvi->bmiHeader.biWidth
-                      << " height " << pvi->bmiHeader.biHeight << std::endl;
         }
 
         IAMVideoControl* pVideoControl = nullptr;
@@ -337,21 +433,18 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
                                       device->m_sourceFilter, IID_IAMVideoControl,
                                       reinterpret_cast<void**>(&pVideoControl));
         if (hr < 0) {
-            std::cerr << "Can't FindInterface(IID_IAMVideoControl)" << std::endl;
             continue;
         }
 
         IPin* pPin = nullptr;
         hr = getPin(device->m_sourceFilter, PINDIR_OUTPUT, &pPin);
         if (hr < 0) {
-            std::cerr << "Can't getPin" << std::endl;
             continue;
         }
 
         long supportedModes;
         hr = pVideoControl->GetCaps(pPin, &supportedModes);
         if (hr < 0) {
-            std::cerr << "Can't GetCaps" << std::endl;
             pPin->Release();
             pVideoControl->Release();
             continue;
@@ -360,7 +453,6 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
         long mode;
         hr = pVideoControl->GetMode(pPin, &mode);
         if (hr < 0) {
-            std::cerr << "Can't GetMode" << std::endl;
             pPin->Release();
             pVideoControl->Release();
             continue;

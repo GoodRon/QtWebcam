@@ -10,13 +10,12 @@
 #include <vector>
 
 #include "SampleGrabber.h"
+#include "VideoCaptureCallback.h"
 
 struct IBaseFilter;
 struct IFilterGraph2;
 class VideoCapture;
 class VideoDevice;
-
-typedef void (*VideoCaptureCallback)(unsigned char* data, int len, VideoDevice* dev);
 
 class VideoDevice {
 public:
@@ -42,6 +41,7 @@ public:
     void setCallback(VideoCaptureCallback callback);
     bool start();
     bool stop();
+    bool isActive() const;
 
 private:
     int m_id;
@@ -57,6 +57,7 @@ private:
     ISampleGrabber* m_sampleGrabber;
     IFilterGraph2* m_graph;
     IAMStreamConfig* m_config;
+    bool m_isActive;
 
     class CallbackHandler : public ISampleGrabberCB {
     public:
