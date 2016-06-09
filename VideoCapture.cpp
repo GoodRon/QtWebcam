@@ -8,6 +8,7 @@
 #include "VideoDevice.h"
 #include "VideoCapture.h"
 #include "SampleGrabber.h"
+#include "ImageFormats.h"
 
 #include <sstream>
 
@@ -36,25 +37,6 @@ HRESULT getPin(IBaseFilter* pFilter, PIN_DIRECTION PinDir, IPin** ppPin) {
     }
     pEnum->Release();
     return E_FAIL;
-}
-
-std::string getFormatName(GUID uid) {
-    if (uid == MEDIASUBTYPE_ARGB32) {
-        return "ARGB32";
-    }
-    if (uid == MEDIASUBTYPE_RGB32) {
-        return "RGB32";
-    }
-    if (uid == MEDIASUBTYPE_RGB24) {
-        return "RGB24";
-    }
-    if (uid == MEDIASUBTYPE_RGB555) {
-        return "RGB555";
-    }
-    if (uid == MEDIASUBTYPE_MJPG) {
-        return "MJPG";
-    }
-    return "unknown format";
 }
 
 VideoCapture::VideoCapture(VideoCaptureCallback callback):
@@ -114,9 +96,17 @@ std::vector<std::string> VideoCapture::getActiveDeviceResolutions() const {
 
     auto propertiesList = m_devices[m_activeDeviceNum]->getPropertiesList();
     for (auto& properties: propertiesList) {
+        string formatName = "unknown";
+        for (auto& formatRow: ImageFormatTable) {
+            if (formatRow.directshowFormat == properties.pixelFormat) {
+                formatName = formatRow.name;
+                break;
+            }
+        }
+
         stringstream stream;
         stream << properties.width << "x" << properties.height << " "
-               << getFormatName(properties.pixelFormat);
+               << formatName;
         string resolution;
         stream >> resolution;
         resolutions.push_back(resolution);
@@ -379,15 +369,29 @@ bool VideoCapture::initializeVideo() {
     return true;
 }
 
-bool checkPixelFormat(GUID uid) {
-    if (uid == MEDIASUBTYPE_ARGB32 ||
-            uid == MEDIASUBTYPE_RGB32 ||
-            uid == MEDIASUBTYPE_RGB24 ||
-            uid == MEDIASUBTYPE_RGB555 ||
-            uid == MEDIASUBTYPE_MJPG) {
-        return true;
+bool checkMediaType(AM_MEDIA_TYPE* type) {
+    if (type->majortype != MEDIATYPE_Video ||
+        type->formattype != FORMAT_VideoInfo) {
+        return false;
     }
-    return false;
+
+    VIDEOINFOHEADER* pvi = reinterpret_cast<VIDEOINFOHEADER*>(type->pbFormat);
+    if (pvi->bmiHeader.biWidth <= 0 ||
+        pvi->bmiHeader.biHeight <= 0) {
+        return false;
+    }
+
+    bool isKnownFormat = false;
+    for (auto& formatRow: ImageFormatTable) {
+        if (type->pbFormat == formatRow.directshowFormat) {
+            isKnownFormat = true;
+            break;
+        }
+    }
+    if (!isKnownFormat) {
+        return false;
+    }
+    return true;
 }
 
 bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
@@ -397,7 +401,6 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
 
     HRESULT hr = S_FALSE;
     AM_MEDIA_TYPE* pmt = nullptr;
-    VIDEOINFOHEADER* pvi = nullptr;
     VIDEO_STREAM_CONFIG_CAPS scc;
     IAMStreamConfig* pConfig = nullptr;
 
@@ -408,41 +411,35 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
         return false;
     }
 
-    //   if (device->m_config) {
-    //       device->m_config->Release();
-    //   }
-    //   device->m_config = pConfig;
-
     int iCount = 0;
     int iSize = 0;
     hr = pConfig->GetNumberOfCapabilities(&iCount, &iSize);
     if (hr < 0) {
         pConfig->Release();
-        device->m_config = nullptr;
         return false;
     }
 
+    if (device->m_config) {
+        device->m_config->Release();
+    }
     device->m_config = pConfig;
+
     for (int iIndex = 0; iIndex < iCount; ++iIndex) {
         hr = pConfig->GetStreamCaps(iIndex, &pmt, reinterpret_cast<BYTE*>(&scc));
         if (hr < 0) {
             continue;
         }
 
-        if (!checkPixelFormat(pmt->subtype)) {
+        if (!checkMediaType(pmt)) {
             continue;
         }
 
         VideoDevice::Properties properties;
-        if (pmt->majortype == MEDIATYPE_Video &&
-                pmt->formattype == FORMAT_VideoInfo) {
-            pvi = reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat);
-
-            properties.mediaType = *pmt;
-            properties.width = pvi->bmiHeader.biWidth;
-            properties.height = pvi->bmiHeader.biHeight;
-            properties.pixelFormat = pmt->subtype;
-        }
+        VIDEOINFOHEADER* pvi = reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat);
+        properties.mediaType = *pmt;
+        properties.width = pvi->bmiHeader.biWidth;
+        properties.height = pvi->bmiHeader.biHeight;
+        properties.pixelFormat = pmt->subtype;
 
         IAMVideoControl* pVideoControl = nullptr;
         hr = m_capture->FindInterface(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video,

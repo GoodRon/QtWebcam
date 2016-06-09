@@ -40,7 +40,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 #endif()
 
 set(QT_LIBS Qt5::Core Qt5::Widgets Qt5::Gui)
-set(SRC main.cpp WebcamWindow.cpp VideoDevice.cpp VideoCapture.cpp)
+set(SRC main.cpp WebcamWindow.cpp VideoDevice.cpp VideoCapture.cpp ImageFormats.cpp)
 set(LIBS ${QT_LIBS} strmiids Ole32 OleAut32)
 
 add_executable(webcam ${SRC})

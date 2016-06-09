@@ -18,6 +18,7 @@
 #include "WebcamWindow.h"
 #include "VideoDevice.h"
 #include "VideoCapture.h"
+#include "ImageFormats.h"
 
 void callback(unsigned char* data, int len, VideoDevice* device) {
     WebcamWindow::getInstance().processFrame(data, len, device);
@@ -82,38 +83,29 @@ WebcamWindow::~WebcamWindow() {
     delete m_videoCapture;
 }
 
-QImage::Format getImageFormat(GUID uid) {
-    if (uid == MEDIASUBTYPE_ARGB32) {
-        return QImage::Format_ARGB32;
-    }
-    if (uid == MEDIASUBTYPE_RGB32) {
-        return QImage::Format_RGB32;
-    }
-    if (uid == MEDIASUBTYPE_RGB24) {
-        return QImage::Format_RGB888;
-    }
-    if (uid == MEDIASUBTYPE_RGB555) {
-        return QImage::Format_RGB555;
-    }
-    if (uid == MEDIASUBTYPE_MJPG) {
-        return QImage::Format_RGB888;
-    }
-    return QImage::Format_Invalid;
-}
-
 void WebcamWindow::processFrame(const unsigned char* data, int len, VideoDevice* device) {
-    if (!device) {
+    if (!device || data || len <= 0) {
         return;
     }
 
-    auto format = getImageFormat(device->getCurrentProperties().pixelFormat);
-    QImage newFrame(data, device->getCurrentProperties().width,
-                    device->getCurrentProperties().height, format);
+    QImage::Format format = QImage::Format_Invalid;
+    QImageMaker makeQImage;
+    for (auto& formatRow: ImageFormatTable) {
+        if (formatRow.directshowFormat == device->getCurrentProperties().pixelFormat) {
+            format = formatRow.qimageFormat;
+            makeQImage = formatRow.makeQImage;
+            break;
+        }
+    }
+    if (format == QImage::Format_Invalid) {
+        return;
+    }
+
+    QImage newFrame(makeQImage(data, len, device->getCurrentProperties().width,
+                               device->getCurrentProperties().height));
     m_frameMutex.lock();
     m_frame = newFrame.mirrored(device->getCurrentProperties().isFlippedHorizontal,
                                 !device->getCurrentProperties().isFlippedVertical);
-    // TODO check format
-    m_frame = m_frame.rgbSwapped();
     m_frameMutex.unlock();
 
     QMetaObject::invokeMethod(this, "presentFrame", Qt::QueuedConnection);
