@@ -383,7 +383,8 @@ bool checkPixelFormat(GUID uid) {
     if (uid == MEDIASUBTYPE_ARGB32 ||
             uid == MEDIASUBTYPE_RGB32 ||
             uid == MEDIASUBTYPE_RGB24 ||
-            uid == MEDIASUBTYPE_RGB555) {
+            uid == MEDIASUBTYPE_RGB555 ||
+            uid == MEDIASUBTYPE_MJPG) {
         return true;
     }
     return false;
