@@ -95,6 +95,9 @@ QImage::Format getImageFormat(GUID uid) {
     if (uid == MEDIASUBTYPE_RGB555) {
         return QImage::Format_RGB555;
     }
+    if (uid == MEDIASUBTYPE_MJPG) {
+        return QImage::Format_RGB888;
+    }
     return QImage::Format_Invalid;
 }
 

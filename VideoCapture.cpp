@@ -51,6 +51,9 @@ std::string getFormatName(GUID uid) {
     if (uid == MEDIASUBTYPE_RGB555) {
         return "RGB555";
     }
+    if (uid == MEDIASUBTYPE_MJPG) {
+        return "MJPG";
+    }
     return "unknown format";
 }
 
@@ -87,10 +90,12 @@ VideoCapture::~VideoCapture() {
         m_capture = nullptr;
     }
 
+    /*
     if (m_graph) {
         m_graph->Release();
         m_graph = nullptr;
     }
+    */
 }
 
 std::vector<std::wstring> VideoCapture::getDevicesNames() const {
