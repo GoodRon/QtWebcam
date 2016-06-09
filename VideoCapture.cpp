@@ -106,7 +106,7 @@ std::vector<std::string> VideoCapture::getActiveDeviceResolutions() const {
         }
 
         stringstream stream;
-		stream << properties.width << "x" << properties.height << "@" << formatName;
+        stream << properties.width << "x" << properties.height << "@" << formatName;
         string resolution;
         stream >> resolution;
         resolutions.push_back(resolution);
@@ -384,39 +384,39 @@ void VideoCapture::disconnectFilters(VideoDevice* device) {
 
     hr = getPin(device->m_sampleGrabberFilter, PINDIR_INPUT, &pPin);
     if (SUCCEEDED(hr)) {
-		m_graph->Disconnect(pPin);
+        m_graph->Disconnect(pPin);
         pPin->Release();
         pPin = nullptr;
     }
 
     hr = getPin(device->m_sampleGrabberFilter, PINDIR_OUTPUT, &pPin);
     if (SUCCEEDED(hr)) {
-		m_graph->Disconnect(pPin);
+        m_graph->Disconnect(pPin);
         pPin->Release();
         pPin = nullptr;
     }
 
     hr = getPin(device->m_nullRenderer, PINDIR_INPUT, &pPin);
     if (SUCCEEDED(hr)) {
-		m_graph->Disconnect(pPin);
+        m_graph->Disconnect(pPin);
         pPin->Release();
         pPin = nullptr;
     }
 
-	m_graph->RemoveFilter(device->m_nullRenderer);
-	m_graph->RemoveFilter(device->m_sampleGrabberFilter);
-	m_graph->RemoveFilter(device->m_sourceFilter);
+    m_graph->RemoveFilter(device->m_nullRenderer);
+    m_graph->RemoveFilter(device->m_sampleGrabberFilter);
+    m_graph->RemoveFilter(device->m_sourceFilter);
 }
 
 bool checkMediaType(AM_MEDIA_TYPE* type) {
     if (type->majortype != MEDIATYPE_Video ||
-        type->formattype != FORMAT_VideoInfo) {
+            type->formattype != FORMAT_VideoInfo) {
         return false;
     }
 
     VIDEOINFOHEADER* pvi = reinterpret_cast<VIDEOINFOHEADER*>(type->pbFormat);
     if (pvi->bmiHeader.biWidth <= 0 ||
-        pvi->bmiHeader.biHeight <= 0) {
+            pvi->bmiHeader.biHeight <= 0) {
         return false;
     }
 

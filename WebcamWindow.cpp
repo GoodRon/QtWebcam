@@ -14,6 +14,7 @@
 #include <QGroupBox>
 #include <QSplitter>
 #include <QString>
+#include <QSizePolicy>
 
 #include "WebcamWindow.h"
 #include "VideoDevice.h"
@@ -110,6 +111,7 @@ void WebcamWindow::presentFrame() {
     m_frameMutex.lock();
     m_viewport->setPixmap(QPixmap::fromImage(m_frame));
     m_frameMutex.unlock();
+	adjustSize();
     m_viewport->repaint();
 }
 
@@ -120,6 +122,7 @@ void WebcamWindow::changeResolution(int resolutionNum) {
     if (wasCapturing) {
         startCapture();
     }
+	adjustSize();
 }
 
 void WebcamWindow::changeDevice(int deviceNum) {
