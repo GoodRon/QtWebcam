@@ -56,6 +56,9 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     m_controlGroup->setMinimumWidth(200);
     m_controlGroup->setMaximumWidth(200);
 
+	m_stopButton->setEnabled(false);
+	m_flipButton->setEnabled(false);
+
     m_viewport->setMinimumSize(320, 240);
     m_windowLayout->addWidget(m_viewport);
     m_windowLayout->addWidget(m_controlGroup);
@@ -153,12 +156,20 @@ void WebcamWindow::flipFrame() {
 }
 
 void WebcamWindow::startCapture() {
+	m_startButton->setEnabled(false);
+	m_stopButton->setEnabled(true);
+	m_flipButton->setEnabled(true);
+
     if (m_videoCapture->startCapture()) {
         m_isCapturing = true;
     }
 }
 
 void WebcamWindow::stopCapture() {
+	m_startButton->setEnabled(true);
+	m_stopButton->setEnabled(false);
+	m_flipButton->setEnabled(false);
+
     if (m_videoCapture->stopCapture()) {
         m_isCapturing = false;
     }
