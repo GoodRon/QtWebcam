@@ -7,6 +7,15 @@
 
 #include "ImageFormats.h"
 
+/**
+ * @brief Make QImage in specified format
+ *
+ * @param data
+ * @param len
+ * @param width
+ * @param height
+ * @return QImage
+ */
 QImage simpleQimage(const unsigned char* data, unsigned len,
                     unsigned width, unsigned height, QImage::Format format) {
     return QImage(data, width, height, format);

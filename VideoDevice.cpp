@@ -80,7 +80,7 @@ bool VideoDevice::setCurrentProperties(const VideoDevice::Properties& properties
     return true;
 }
 
-void VideoDevice::setCallback(VideoCaptureCallback callback) {
+void VideoDevice::setCallback(VideoCaptureCallback& callback) {
     m_callbackHandler->SetCallback(callback);
 }
 

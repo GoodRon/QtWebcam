@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
+project(QtWebcam)
 
+# TODO remove it
 if(NOT DEFINED CMAKE_PREFIX_PATH)
         if(MSVC)
                 set(CMAKE_PREFIX_PATH "F:\\soft\\Qt\\5.5\\msvc2013")

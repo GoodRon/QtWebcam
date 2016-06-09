@@ -216,6 +216,13 @@ bool VideoCapture::initializeGraph() {
     return true;
 }
 
+/**
+ * @brief Add id to name for making unique names
+ *
+ * @param name
+ * @param id
+ * @return wstring
+ */
 wstring addIdToName(const std::wstring& name, int id) {
     stringstream stream;
     stream << "id" << id;
@@ -411,6 +418,12 @@ void VideoCapture::disconnectFilters(VideoDevice* device) {
     m_graph->RemoveFilter(device->m_sourceFilter);
 }
 
+/**
+ * @brief Check if media type is known
+ *
+ * @param type
+ * @return true
+ */
 bool checkMediaType(AM_MEDIA_TYPE* type) {
     if (type->majortype != MEDIATYPE_Video ||
             type->formattype != FORMAT_VideoInfo) {
