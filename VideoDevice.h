@@ -61,24 +61,24 @@ private:
 
     class CallbackHandler : public ISampleGrabberCB {
     public:
-            CallbackHandler(VideoDevice* device);
-            ~CallbackHandler();
+        CallbackHandler(VideoDevice* device);
+        ~CallbackHandler();
 
-            void SetCallback(VideoCaptureCallback callback);
+        void SetCallback(VideoCaptureCallback callback);
 
-            virtual HRESULT STDMETHODCALLTYPE SampleCB(double time, IMediaSample* sample);
-            virtual HRESULT STDMETHODCALLTYPE BufferCB(double time, BYTE* buffer, long len);
-            virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID *ppv);
-            virtual ULONG STDMETHODCALLTYPE AddRef();
-            virtual ULONG STDMETHODCALLTYPE Release();
+        virtual HRESULT STDMETHODCALLTYPE SampleCB(double time, IMediaSample* sample);
+        virtual HRESULT STDMETHODCALLTYPE BufferCB(double time, BYTE* buffer, long len);
+        virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID *ppv);
+        virtual ULONG STDMETHODCALLTYPE AddRef();
+        virtual ULONG STDMETHODCALLTYPE Release();
 
     private:
-            VideoCaptureCallback m_callback;
-            VideoDevice* m_device;
+        VideoCaptureCallback m_callback;
+        VideoDevice* m_device;
 
     }* m_callbackHandler;
 
-friend class VideoCapture;
+    friend class VideoCapture;
 };
 
 #endif // VIDEO_DEVICE_H

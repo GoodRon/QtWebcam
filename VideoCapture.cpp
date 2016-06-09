@@ -71,26 +71,26 @@ VideoCapture::VideoCapture(VideoCaptureCallback callback):
 }
 
 VideoCapture::~VideoCapture() {
-	for (auto& device : m_devices) {
-		device->stop();
-	}
-	m_devices.erase(m_devices.begin(), m_devices.end());
+    for (auto& device : m_devices) {
+        device->stop();
+    }
+    m_devices.erase(m_devices.begin(), m_devices.end());
     stopControl();
 
-	if (m_control) {
-		m_control->Release();
-		m_control = nullptr;
-	}
+    if (m_control) {
+        m_control->Release();
+        m_control = nullptr;
+    }
 
-	if (m_capture) {
-		m_capture->Release();
-		m_capture = nullptr;
-	}
+    if (m_capture) {
+        m_capture->Release();
+        m_capture = nullptr;
+    }
 
-	if (m_graph) {
-		m_graph->Release();
-		m_graph = nullptr;
-	}
+    if (m_graph) {
+        m_graph->Release();
+        m_graph = nullptr;
+    }
 }
 
 std::vector<std::wstring> VideoCapture::getDevicesNames() const {
@@ -135,10 +135,10 @@ bool VideoCapture::changeActiveDeviceResolution(unsigned resolutionNum) {
         return false;
     }
 
-	stopCapture();
-	if (!stopControl()) {
-		return false;
-	}
+    stopCapture();
+    if (!stopControl()) {
+        return false;
+    }
 
     auto propertiesList = m_devices[m_activeDeviceNum]->getPropertiesList();
     if (resolutionNum >= propertiesList.size()) {
@@ -149,9 +149,9 @@ bool VideoCapture::changeActiveDeviceResolution(unsigned resolutionNum) {
         return false;
     }
 
-	if (!runControl()) {
-		return false;
-	}
+    if (!runControl()) {
+        return false;
+    }
     return true;
 }
 
@@ -162,9 +162,9 @@ bool VideoCapture::startCapture() {
         }
     }
 
-	if (m_activeDeviceNum >= m_devices.size()) {
-		return false;
-	}
+    if (m_activeDeviceNum >= m_devices.size()) {
+        return false;
+    }
     m_devices[m_activeDeviceNum]->start();
     return true;
 }
@@ -178,12 +178,12 @@ bool VideoCapture::stopCapture() {
 }
 
 bool VideoCapture::runControl() {
-	HRESULT hr = m_control->Run();
-	if (hr < 0) {
-		return false;
-	}
+    HRESULT hr = m_control->Run();
+    if (hr < 0) {
+        return false;
+    }
     m_readyForCapture = true;
-	return true;
+    return true;
 }
 
 bool VideoCapture::stopControl() {
@@ -191,11 +191,11 @@ bool VideoCapture::stopControl() {
         device->stop();
     }
     m_readyForCapture = false;
-	HRESULT hr = m_control->Stop();
-	if (hr < 0) {
-		return false;
-	}
-	return true;
+    HRESULT hr = m_control->Stop();
+    if (hr < 0) {
+        return false;
+    }
+    return true;
 }
 
 bool VideoCapture::initializeGraph() {
@@ -402,21 +402,21 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
         return false;
     }
 
- //   if (device->m_config) {
- //       device->m_config->Release();
- //   }
- //   device->m_config = pConfig;
+    //   if (device->m_config) {
+    //       device->m_config->Release();
+    //   }
+    //   device->m_config = pConfig;
 
     int iCount = 0;
     int iSize = 0;
     hr = pConfig->GetNumberOfCapabilities(&iCount, &iSize);
     if (hr < 0) {
         pConfig->Release();
-		device->m_config = nullptr;
+        device->m_config = nullptr;
         return false;
     }
 
-	device->m_config = pConfig;
+    device->m_config = pConfig;
     for (int iIndex = 0; iIndex < iCount; ++iIndex) {
         hr = pConfig->GetStreamCaps(iIndex, &pmt, reinterpret_cast<BYTE*>(&scc));
         if (hr < 0) {

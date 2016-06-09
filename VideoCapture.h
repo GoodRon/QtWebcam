@@ -21,21 +21,21 @@ public:
     VideoCapture(VideoCaptureCallback callback);
     ~VideoCapture();
 
-	std::vector<std::wstring> getDevicesNames() const;
-	unsigned getActiveDeviceNum() const;
-	std::vector<std::string> getActiveDeviceResolutions() const;
-	bool changeActiveDevice(unsigned deviceNum);
-	bool changeActiveDeviceResolution(unsigned resolutionNum);
+    std::vector<std::wstring> getDevicesNames() const;
+    unsigned getActiveDeviceNum() const;
+    std::vector<std::string> getActiveDeviceResolutions() const;
+    bool changeActiveDevice(unsigned deviceNum);
+    bool changeActiveDeviceResolution(unsigned resolutionNum);
 
-	bool startCapture();
-	bool stopCapture();
+    bool startCapture();
+    bool stopCapture();
 
 private:
     bool initializeGraph();
     bool initializeVideo();
     bool updateDeviceCapabilities(VideoDevice* device);
-	bool runControl();
-	bool stopControl();
+    bool runControl();
+    bool stopControl();
 
 private:
     IFilterGraph2* m_graph;
@@ -43,7 +43,7 @@ private:
     IMediaControl* m_control;
 
     bool m_readyForCapture;
-	unsigned m_activeDeviceNum;
+    unsigned m_activeDeviceNum;
     std::vector<std::shared_ptr<VideoDevice>> m_devices;
 };
 

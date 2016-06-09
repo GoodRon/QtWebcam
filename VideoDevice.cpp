@@ -25,31 +25,31 @@ VideoDevice::VideoDevice():
 }
 
 VideoDevice::~VideoDevice() {
-	delete m_callbackHandler;
+    delete m_callbackHandler;
 
-	if (m_sourceFilter) {
-		m_sourceFilter->Release();
-		m_sourceFilter = nullptr;
-	}
-	
-	if (m_sampleGrabberFilter) {
-		m_sampleGrabberFilter->Release();
-		m_sampleGrabberFilter = nullptr;
-	}
+    if (m_sourceFilter) {
+        m_sourceFilter->Release();
+        m_sourceFilter = nullptr;
+    }
 
-	if (m_sampleGrabber) {
-		m_sampleGrabber->Release();
-		m_sampleGrabber = nullptr;
-	}
+    if (m_sampleGrabberFilter) {
+        m_sampleGrabberFilter->Release();
+        m_sampleGrabberFilter = nullptr;
+    }
 
-	if (m_nullRenderer) {
-		m_nullRenderer->Release();
-		m_nullRenderer = nullptr;
-	}
+    if (m_sampleGrabber) {
+        m_sampleGrabber->Release();
+        m_sampleGrabber = nullptr;
+    }
 
-	if (m_config) {
+    if (m_nullRenderer) {
+        m_nullRenderer->Release();
+        m_nullRenderer = nullptr;
+    }
+
+    if (m_config) {
         m_config->Release();
-		m_config = nullptr;
+        m_config = nullptr;
     }
 }
 
@@ -72,7 +72,7 @@ VideoDevice::Properties VideoDevice::getCurrentProperties() const {
 bool VideoDevice::setCurrentProperties(const VideoDevice::Properties& properties) {
     m_currentProperties = properties;
 
-	AM_MEDIA_TYPE mt = properties.mediaType;
+    AM_MEDIA_TYPE mt = properties.mediaType;
     HRESULT hr = m_config->SetFormat(&mt);
     if (hr < 0) {
         return false;
