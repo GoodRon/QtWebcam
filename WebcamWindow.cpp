@@ -129,6 +129,14 @@ void WebcamWindow::changeDevice(int deviceNum) {
     bool wasCapturing = m_isCapturing;
     stopCapture();
     m_videoCapture->changeActiveDevice(deviceNum);
+
+	m_resolutions->clear();
+	auto deviceResolutions = m_videoCapture->getActiveDeviceResolutions();
+	for (auto& deviceResolution : deviceResolutions) {
+		QString resolution = QString::fromStdString(deviceResolution);
+		m_resolutions->addItem(resolution);
+	}
+
     if (wasCapturing) {
         startCapture();
     }
