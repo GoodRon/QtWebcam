@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     QString pluginPath = app.applicationDirPath() + "/plugins";
     app.addLibraryPath(pluginPath);
 
-    WebcamWindow& window = WebcamWindow::getInstance();
+    WebcamWindow window;
     window.show();
     return app.exec();
 }

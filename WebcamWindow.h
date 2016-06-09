@@ -24,18 +24,10 @@ class WebcamWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    static WebcamWindow& getInstance() {
-        static WebcamWindow instance;
-        return instance;
-    }
+	WebcamWindow(QWidget *parent = nullptr);
+	virtual ~WebcamWindow();
 
     void processFrame(const unsigned char* data, int len, VideoDevice* device);
-
-private:
-    WebcamWindow(QWidget *parent = nullptr);
-    virtual ~WebcamWindow();
-    WebcamWindow(const WebcamWindow& other) = delete;
-    WebcamWindow& operator=(const WebcamWindow& other) = delete;
 
 private Q_SLOTS:
     void presentFrame();

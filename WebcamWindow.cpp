@@ -3,8 +3,6 @@
  * All rights reserved
  */
 
-#include <iostream>
-
 #include <QLabel>
 #include <QImage>
 #include <QHBoxLayout>
@@ -21,8 +19,13 @@
 #include "VideoCapture.h"
 #include "ImageFormats.h"
 
-void callback(unsigned char* data, int len, VideoDevice* device) {
-    WebcamWindow::getInstance().processFrame(data, len, device);
+static WebcamWindow* mainWindow = nullptr;
+
+static void callback(unsigned char* data, int len, VideoDevice* device) {
+	if (!mainWindow) {
+		return;
+	}
+	mainWindow->processFrame(data, len, device);
 }
 
 WebcamWindow::WebcamWindow(QWidget *parent):
@@ -43,6 +46,8 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     m_videoCapture(nullptr),
     m_isCapturing(false),
 	m_isFlipped(false) {
+	mainWindow = this;
+
     setWindowTitle("QtWebcam");
 	setWindowFlags(this->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
 
@@ -88,6 +93,8 @@ WebcamWindow::WebcamWindow(QWidget *parent):
 }
 
 WebcamWindow::~WebcamWindow() {
+	m_devices->blockSignals(true);
+	m_resolutions->blockSignals(true);
     m_videoCapture->stopCapture();
     delete m_videoCapture;
 }
