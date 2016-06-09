@@ -246,7 +246,7 @@ bool VideoCapture::initializeVideo() {
 
     hr = devEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory,
                                         &enumMoniker, NULL);
-    if (hr < 0 || !devEnum) {
+    if (hr < 0 || !enumMoniker) {
         return false;
     }
 
