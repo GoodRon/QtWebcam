@@ -9,16 +9,16 @@
 #include <QMainWindow>
 #include <QMutex>
 #include <QImage>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QComboBox>
-#include <QGroupBox>
-#include <QSplitter>
 
 class QLabel;
 class VideoDevice;
 class VideoCapture;
+class QHBoxLayout;
+class QVBoxLayout;
+class QPushButton;
+class QComboBox;
+class QGroupBox;
+class QSplitter;
 
 class WebcamWindow : public QMainWindow {
 	Q_OBJECT

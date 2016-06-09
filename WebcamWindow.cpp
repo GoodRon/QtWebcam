@@ -7,6 +7,13 @@
 
 #include <QLabel>
 #include <QImage>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QSplitter>
+#include <QString>
 
 #include "WebcamWindow.h"
 #include "VideoDevice.h"
@@ -53,12 +60,14 @@ WebcamWindow::WebcamWindow(QWidget *parent):
 
 	auto devicesNames = m_videoCapture->getDevicesNames();
 	for (auto& deviceName: devicesNames) {
-		m_devices->addItem(deviceName);
+		QString name = QString::fromWCharArray(wideString.c_str());
+		m_devices->addItem(name);
 	}
 
 	auto deviceResolutions = m_videoCapture->getActiveDeviceResolutions();
 	for (auto& deviceResolution: deviceResolutions) {
-		m_resolutions->addItem(deviceResolution);
+		QString resolution = QString::fromWCharArray(deviceResolution.c_str());
+		m_resolutions->addItem(resolution);
 	}
 }
 
