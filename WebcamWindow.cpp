@@ -50,6 +50,16 @@ WebcamWindow::WebcamWindow(QWidget *parent):
 
 	m_videoCapture = new VideoCapture(callback);
 	m_videoCapture->startCapture();
+
+	auto devicesNames = m_videoCapture->getDevicesNames();
+	for (auto& deviceName: devicesNames) {
+		m_devices->addItem(deviceName);
+	}
+
+	auto deviceResolutions = m_videoCapture->getActiveDeviceResolutions();
+	for (auto& deviceResolution: deviceResolutions) {
+		m_resolutions->addItem(deviceResolution);
+	}
 }
 
 WebcamWindow::~WebcamWindow() {
