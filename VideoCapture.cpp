@@ -58,6 +58,7 @@ VideoCapture::VideoCapture(VideoCaptureCallback callback):
 VideoCapture::~VideoCapture() {
     for (auto& device : m_devices) {
         device->stop();
+        disconnectFilters(device);
     }
     m_devices.erase(m_devices.begin(), m_devices.end());
     stopControl();
@@ -345,7 +346,7 @@ bool VideoCapture::initializeVideo() {
             }
 
             // if the stream is started, start capturing immediatly
-            LONGLONG start=0, stop=MAXLONGLONG;
+            LONGLONG start = 0, stop = MAXLONGLONG;
             hr = m_capture->ControlStream(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video,
                                           device->m_sourceFilter, &start, &stop, 1, 2);
             if (hr < 0) {
@@ -366,6 +367,45 @@ bool VideoCapture::initializeVideo() {
     enumMoniker->Release();
     devEnum->Release();
     return true;
+}
+
+void VideoCapture::disconnectFilters(VideoDevice* device) {
+    if (!device) {
+        return;
+    }
+
+    IPin* pPin = nullptr;
+    HRESULT hr = getPin(device->m_sourceFilter, PINDIR_OUTPUT, &pPin);
+    if (SUCCEEDED(hr)) {
+        m_filterGraph->Disconnect(pPin);
+        pPin->Release();
+        pPin = nullptr;
+    }
+
+    hr = getPin(device->m_sampleGrabberFilter, PINDIR_INPUT, &pPin);
+    if (SUCCEEDED(hr)) {
+        m_filterGraph->Disconnect(pPin);
+        pPin->Release();
+        pPin = nullptr;
+    }
+
+    hr = getPin(device->m_sampleGrabberFilter, PINDIR_OUTPUT, &pPin);
+    if (SUCCEEDED(hr)) {
+        m_filterGraph->Disconnect(pPin);
+        pPin->Release();
+        pPin = nullptr;
+    }
+
+    hr = getPin(device->m_nullRenderer, PINDIR_INPUT, &pPin);
+    if (SUCCEEDED(hr)) {
+        m_filterGraph->Disconnect(pPin);
+        pPin->Release();
+        pPin = nullptr;
+    }
+
+    m_filterGraph->RemoveFilter(device->m_nullRenderer);
+    m_filterGraph->RemoveFilter(device->m_sampleGrabberFilter);
+    m_filterGraph->RemoveFilter(device->m_sourceFilter);
 }
 
 bool checkMediaType(AM_MEDIA_TYPE* type) {
@@ -470,8 +510,12 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
             continue;
         }
 
-        properties.isFlippedHorizontal = mode & VideoControlFlag_FlipHorizontal;
-        properties.isFlippedVertical = mode & VideoControlFlag_FlipVertical;
+        if (supportedModes & VideoControlFlag_FlipHorizontal) {
+            properties.isFlippedHorizontal = mode & VideoControlFlag_FlipHorizontal;
+        }
+        if (supportedModes & VideoControlFlag_FlipVertical) {
+            properties.isFlippedVertical = mode & VideoControlFlag_FlipVertical;
+        }
         device->m_propertiesList.push_back(properties);
 
         pPin->Release();
