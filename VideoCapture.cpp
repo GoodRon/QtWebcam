@@ -105,8 +105,7 @@ std::vector<std::string> VideoCapture::getActiveDeviceResolutions() const {
         }
 
         stringstream stream;
-        stream << properties.width << "x" << properties.height << " "
-               << formatName;
+		stream << properties.width << "x" << properties.height << "@" << formatName;
         string resolution;
         stream >> resolution;
         resolutions.push_back(resolution);
@@ -383,7 +382,7 @@ bool checkMediaType(AM_MEDIA_TYPE* type) {
 
     bool isKnownFormat = false;
     for (auto& formatRow: ImageFormatTable) {
-        if (type->pbFormat == formatRow.directshowFormat) {
+        if (type->subtype == formatRow.directshowFormat) {
             isKnownFormat = true;
             break;
         }

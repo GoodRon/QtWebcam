@@ -84,21 +84,16 @@ WebcamWindow::~WebcamWindow() {
 }
 
 void WebcamWindow::processFrame(const unsigned char* data, int len, VideoDevice* device) {
-    if (!device || data || len <= 0) {
+    if (!device || data == nullptr || len <= 0) {
         return;
     }
 
-    QImage::Format format = QImage::Format_Invalid;
     QImageMaker makeQImage;
     for (auto& formatRow: ImageFormatTable) {
         if (formatRow.directshowFormat == device->getCurrentProperties().pixelFormat) {
-            format = formatRow.qimageFormat;
             makeQImage = formatRow.makeQImage;
             break;
         }
-    }
-    if (format == QImage::Format_Invalid) {
-        return;
     }
 
     QImage newFrame(makeQImage(data, len, device->getCurrentProperties().width,
