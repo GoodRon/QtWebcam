@@ -64,7 +64,7 @@ private:
         CallbackHandler(VideoDevice* device);
         ~CallbackHandler();
 
-        void SetCallback(VideoCaptureCallback callback);
+        void SetCallback(VideoCaptureCallback& callback);
 
         virtual HRESULT STDMETHODCALLTYPE SampleCB(double time, IMediaSample* sample);
         virtual HRESULT STDMETHODCALLTYPE BufferCB(double time, BYTE* buffer, long len);

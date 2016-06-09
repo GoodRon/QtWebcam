@@ -153,7 +153,7 @@ VideoDevice::CallbackHandler::CallbackHandler(VideoDevice* device):
 VideoDevice::CallbackHandler::~CallbackHandler() {
 }
 
-void VideoDevice::CallbackHandler::SetCallback(VideoCaptureCallback callback) {
+void VideoDevice::CallbackHandler::SetCallback(VideoCaptureCallback& callback) {
     m_callback = callback;
 }
 
@@ -170,7 +170,7 @@ HRESULT VideoDevice::CallbackHandler::BufferCB(double time, BYTE *buffer, long l
 
 HRESULT VideoDevice::CallbackHandler::QueryInterface(REFIID iid, LPVOID *ppv) {
     if(iid == IID_ISampleGrabberCB || iid == IID_IUnknown) {
-        *ppv = (void *) static_cast<ISampleGrabberCB*>(this);
+        *ppv = reinterpret_cast<LPVOID*>(this);
         return S_OK;
     }
     return E_NOINTERFACE;
@@ -181,5 +181,5 @@ ULONG VideoDevice::CallbackHandler::AddRef() {
 }
 
 ULONG VideoDevice::CallbackHandler::Release() {
-    return 2;
+    return 1;
 }

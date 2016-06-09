@@ -19,15 +19,6 @@
 #include "VideoCapture.h"
 #include "ImageFormats.h"
 
-static WebcamWindow* mainWindow = nullptr;
-
-static void callback(unsigned char* data, int len, VideoDevice* device) {
-    if (!mainWindow) {
-        return;
-    }
-    mainWindow->processFrame(data, len, device);
-}
-
 WebcamWindow::WebcamWindow(QWidget *parent):
     QMainWindow(parent),
     m_viewport(new QLabel),
@@ -46,7 +37,6 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     m_videoCapture(nullptr),
     m_isCapturing(false),
     m_isFlipped(false) {
-    mainWindow = this;
 
     setWindowTitle("QtWebcam");
     setWindowFlags(this->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
@@ -71,7 +61,9 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     m_windowGroup->setLayout(m_windowLayout);
     setCentralWidget(m_windowGroup);
 
-    m_videoCapture = new VideoCapture(callback);
+    m_videoCapture = new VideoCapture([this](unsigned char* data, int len, VideoDevice* device){
+        processFrame(data, len, device);
+    });
 
     auto devicesNames = m_videoCapture->getDevicesNames();
     for (auto& deviceName: devicesNames) {
