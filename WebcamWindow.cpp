@@ -101,7 +101,7 @@ void WebcamWindow::processFrame(const unsigned char* data, int len, VideoDevice*
                                device->getCurrentProperties().height));
     m_frameMutex.lock();
     m_frame = newFrame.mirrored(device->getCurrentProperties().isFlippedHorizontal,
-                                !device->getCurrentProperties().isFlippedVertical);
+                                device->getCurrentProperties().isFlippedVertical);
     m_frameMutex.unlock();
 
     QMetaObject::invokeMethod(this, "presentFrame", Qt::QueuedConnection);
@@ -119,10 +119,10 @@ void WebcamWindow::changeResolution(int resolutionNum) {
     bool wasCapturing = m_isCapturing;
     stopCapture();
     m_videoCapture->changeActiveDeviceResolution(resolutionNum);
+	adjustSize();
     if (wasCapturing) {
         startCapture();
     }
-	adjustSize();
 }
 
 void WebcamWindow::changeDevice(int deviceNum) {

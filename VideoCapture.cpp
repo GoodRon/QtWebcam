@@ -4,6 +4,7 @@
  */
 
 #include <dshow.h>
+#include <sstream>
 
 #include "VideoDevice.h"
 #include "VideoCapture.h"
@@ -50,6 +51,8 @@ VideoCapture::VideoCapture(VideoCaptureCallback callback):
     initializeGraph();
     initializeVideo();
 
+	runControl();
+
     for (auto& device: m_devices) {
         device->setCallback(callback);
     }
@@ -73,12 +76,10 @@ VideoCapture::~VideoCapture() {
         m_capture = nullptr;
     }
 
-    /*
     if (m_graph) {
         m_graph->Release();
         m_graph = nullptr;
     }
-    */
 }
 
 std::vector<std::wstring> VideoCapture::getDevicesNames() const {
@@ -150,26 +151,21 @@ bool VideoCapture::changeActiveDeviceResolution(unsigned resolutionNum) {
     return true;
 }
 
-bool VideoCapture::startCapture() {
-    if (!m_readyForCapture) {
-        if (!runControl()) {
-            return false;
-        }
-    }
 
+#include <iostream>
+using namespace std;
+bool VideoCapture::startCapture() {
     if (m_activeDeviceNum >= m_devices.size()) {
         return false;
     }
-    m_devices[m_activeDeviceNum]->start();
-    return true;
+    return m_devices[m_activeDeviceNum]->start();
 }
 
 bool VideoCapture::stopCapture() {
     if (m_activeDeviceNum >= m_devices.size()) {
         return false;
     }
-    m_devices[m_activeDeviceNum]->stop();
-    return true;
+    return m_devices[m_activeDeviceNum]->stop();
 }
 
 bool VideoCapture::runControl() {
@@ -178,6 +174,10 @@ bool VideoCapture::runControl() {
         return false;
     }
     m_readyForCapture = true;
+
+	for (auto& device : m_devices) {
+		device->stop();
+	}
     return true;
 }
 
@@ -221,6 +221,14 @@ bool VideoCapture::initializeGraph() {
     return true;
 }
 
+wstring addIdToName(const std::wstring& name, int id) {
+	stringstream stream;
+	stream << "id" << id;
+	string uniquePostfix = stream.str();
+	wstring newName = name + wstring(uniquePostfix.begin(), uniquePostfix.end());
+	return newName;
+}
+
 bool VideoCapture::initializeVideo() {
     HRESULT hr = S_FALSE;
     VARIANT name;
@@ -245,8 +253,9 @@ bool VideoCapture::initializeVideo() {
         return false;
     }
 
-    int devNum = 1;
+    int devNum = 0;
     while (enumMoniker->Next(1, &moniker, 0) == S_OK) {
+		++devNum;
         hr = moniker->BindToStorage(nullptr, nullptr, IID_IPropertyBag,
                                     reinterpret_cast<void**>(&pbag));
         if (hr >= 0) {
@@ -263,9 +272,11 @@ bool VideoCapture::initializeVideo() {
 
             shared_ptr<VideoDevice> device(new VideoDevice);
             device->m_id = devNum;
-            // TODO check
             std::wstring wname(name.bstrVal, SysStringLen(name.bstrVal));
             device->m_friendlyName = device->m_filterName = wname;
+			device->m_filterName = addIdToName(device->m_filterName, device->m_id);
+
+			wcout << wname << " filter" << device->m_filterName << endl;
 
             // add a filter for the device
             hr = m_graph->AddSourceFilterForMoniker(moniker, nullptr, device->m_filterName.c_str(),
@@ -273,16 +284,17 @@ bool VideoCapture::initializeVideo() {
             if (hr != S_OK) {
                 pbag->Release();
                 moniker->Release();
+				cout << "AddSourceFilterForMoniker" << endl;
                 continue;
             }
 
             // create a samplegrabber filter for the device
             hr = CoCreateInstance(CLSID_SampleGrabber, nullptr, CLSCTX_INPROC_SERVER,
-                                  IID_IBaseFilter,
-                                  reinterpret_cast<void**>(&device->m_sampleGrabberFilter));
+                                  IID_IBaseFilter, reinterpret_cast<void**>(&device->m_sampleGrabberFilter));
             if (hr < 0) {
                 pbag->Release();
                 moniker->Release();
+				cout << "CLSID_SampleGrabber" << endl;
                 continue;
             }
 
@@ -292,13 +304,14 @@ bool VideoCapture::initializeVideo() {
             if (hr != S_OK) {
                 pbag->Release();
                 moniker->Release();
+				cout << "IID_ISampleGrabber" << endl;
                 continue;
             }
 
             // set device capabilities
             updateDeviceCapabilities(device.get());
 
-            filterName = L"SG " + device->m_filterName;
+            filterName = L"SG" + device->m_filterName;
             m_graph->AddFilter(device->m_sampleGrabberFilter, filterName.c_str());
 
             // set the media type
@@ -312,6 +325,7 @@ bool VideoCapture::initializeVideo() {
             if (hr != S_OK) {
                 pbag->Release();
                 moniker->Release();
+				cout << "SetMediaType" << endl;
                 continue;
             }
 
@@ -320,6 +334,7 @@ bool VideoCapture::initializeVideo() {
             if (hr != S_OK) {
                 pbag->Release();
                 moniker->Release();
+				cout << "SetCallback" << endl;
                 continue;
             }
 
@@ -329,10 +344,11 @@ bool VideoCapture::initializeVideo() {
             if (hr < 0) {
                 pbag->Release();
                 moniker->Release();
+				cout << "CLSID_NullRenderer" << endl;
                 continue;
             }
 
-            filterName = L"NR " + device->m_filterName;
+            filterName = L"NR" + device->m_filterName;
             m_graph->AddFilter(device->m_nullRenderer, filterName.c_str());
 
             hr = m_capture->RenderStream(&PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video,
@@ -342,6 +358,7 @@ bool VideoCapture::initializeVideo() {
             if (hr < 0) {
                 pbag->Release();
                 moniker->Release();
+				cout << "PIN_CATEGORY_PREVIEW" << endl;
                 continue;
             }
 
@@ -352,6 +369,7 @@ bool VideoCapture::initializeVideo() {
             if (hr < 0) {
                 pbag->Release();
                 moniker->Release();
+				cout << "ControlStream" << endl;
                 continue;
             }
 
@@ -513,8 +531,8 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
         if (supportedModes & VideoControlFlag_FlipHorizontal) {
             properties.isFlippedHorizontal = mode & VideoControlFlag_FlipHorizontal;
         }
-        if (supportedModes & VideoControlFlag_FlipVertical) {
-            properties.isFlippedVertical = mode & VideoControlFlag_FlipVertical;
+        if ((supportedModes & VideoControlFlag_FlipVertical) >> 1) {
+            properties.isFlippedVertical = (mode & VideoControlFlag_FlipVertical) >> 1;
         }
         device->m_propertiesList.push_back(properties);
 

@@ -84,7 +84,7 @@ void VideoDevice::setCallback(VideoCaptureCallback callback) {
     m_callbackHandler->SetCallback(callback);
 }
 
-bool VideoDevice::start(){
+bool VideoDevice::start() {
     HRESULT hr = S_FALSE;
     if (m_nullRenderer) {
         hr = m_nullRenderer->Run(0);

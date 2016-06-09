@@ -15,18 +15,5 @@ int main(int argc, char *argv[]) {
 
     WebcamWindow& window = WebcamWindow::getInstance();
     window.show();
-
-//    VideoCapture vc(callback);
-//	if (!vc.startCapture()) {
-//		std::cout << "Can't start capture" << std::endl;
-//	}
-//
-//	vc.stopCapture();
-//    auto resolutions = vc.getActiveDeviceResolutions().size();
-//	if (!vc.changeActiveDeviceResolution(0)) {
-//		std::cout << "Can't change resolution" << std::endl;
-//	}
-//	vc.startCapture();
-
     return app.exec();
 }
