@@ -72,6 +72,7 @@ WebcamWindow::WebcamWindow(QWidget *parent):
 	}
 
 	connect(m_resolutions, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void(WebcamWindow::*)(int)>(&WebcamWindow::changeResolution));
+	connect(m_devices, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void(WebcamWindow::*)(int)>(&WebcamWindow::changeDevice));
 	connect(m_startButton, &QPushButton::released, this, &WebcamWindow::startCapture);
 	connect(m_stopButton, &QPushButton::released, this, &WebcamWindow::stopCapture);
 }
@@ -141,18 +142,12 @@ void WebcamWindow::changeDevice(int deviceNum) {
 }
 
 void WebcamWindow::startCapture() {
-	if (m_isCapturing == true) {
-		return;
-	}
 	if (m_videoCapture->startCapture()) {
 		m_isCapturing = true;
 	}
 }
 
 void WebcamWindow::stopCapture() {
-	if (m_isCapturing == false) {
-		return;
-	}
 	if (m_videoCapture->stopCapture()) {
 		m_isCapturing = false;
 	}

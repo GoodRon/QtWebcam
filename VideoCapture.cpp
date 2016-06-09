@@ -74,14 +74,23 @@ VideoCapture::~VideoCapture() {
 	for (auto& device : m_devices) {
 		device->stop();
 	}
-
+	m_devices.erase(m_devices.begin(), m_devices.end());
     stopControl();
-	
-	/*
-    if (m_graph) {
-        m_graph->Release();
-    }
-	*/
+
+	if (m_control) {
+		m_control->Release();
+		m_control = nullptr;
+	}
+
+	if (m_capture) {
+		m_capture->Release();
+		m_capture = nullptr;
+	}
+
+	if (m_graph) {
+		m_graph->Release();
+		m_graph = nullptr;
+	}
 }
 
 std::vector<std::wstring> VideoCapture::getDevicesNames() const {
@@ -126,24 +135,22 @@ bool VideoCapture::changeActiveDeviceResolution(unsigned resolutionNum) {
         return false;
     }
 
-	if (m_readyForCapture) {
-		if (!stopControl()) {
-			return false;
-		}
+	stopCapture();
+	if (!stopControl()) {
+		return false;
 	}
 
     auto propertiesList = m_devices[m_activeDeviceNum]->getPropertiesList();
     if (resolutionNum >= propertiesList.size()) {
         return false;
     }
+
     if (!m_devices[m_activeDeviceNum]->setCurrentProperties(propertiesList[resolutionNum])) {
         return false;
     }
 
-	if (m_readyForCapture) {
-		if (!runControl()) {
-			return false;
-		}
+	if (!runControl()) {
+		return false;
 	}
     return true;
 }
@@ -395,19 +402,21 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
         return false;
     }
 
-    if (device->m_config) {
-        device->m_config->Release();
-    }
-    device->m_config = pConfig;
+ //   if (device->m_config) {
+ //       device->m_config->Release();
+ //   }
+ //   device->m_config = pConfig;
 
     int iCount = 0;
     int iSize = 0;
     hr = pConfig->GetNumberOfCapabilities(&iCount, &iSize);
     if (hr < 0) {
         pConfig->Release();
+		device->m_config = nullptr;
         return false;
     }
 
+	device->m_config = pConfig;
     for (int iIndex = 0; iIndex < iCount; ++iIndex) {
         hr = pConfig->GetStreamCaps(iIndex, &pmt, reinterpret_cast<BYTE*>(&scc));
         if (hr < 0) {
@@ -470,7 +479,5 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
     if (!device->m_propertiesList.empty()) {
         device->m_currentProperties = *device->m_propertiesList.begin();
     }
-
-    pConfig->Release();
     return true;
 }

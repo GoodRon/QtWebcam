@@ -25,28 +25,32 @@ VideoDevice::VideoDevice():
 }
 
 VideoDevice::~VideoDevice() {
-	/*
+	delete m_callbackHandler;
+
+	if (m_sourceFilter) {
+		m_sourceFilter->Release();
+		m_sourceFilter = nullptr;
+	}
+	
+	if (m_sampleGrabberFilter) {
+		m_sampleGrabberFilter->Release();
+		m_sampleGrabberFilter = nullptr;
+	}
+
+	if (m_sampleGrabber) {
+		m_sampleGrabber->Release();
+		m_sampleGrabber = nullptr;
+	}
+
+	if (m_nullRenderer) {
+		m_nullRenderer->Release();
+		m_nullRenderer = nullptr;
+	}
+
 	if (m_config) {
         m_config->Release();
+		m_config = nullptr;
     }
-	
-    if (m_graph) {
-        m_graph->Release();
-    }
-    if (m_sampleGrabber) {
-        m_sampleGrabber->Release();
-    }
-    if (m_nullRenderer) {
-        m_nullRenderer->Release();
-    }
-    if (m_sampleGrabberFilter) {
-        m_sampleGrabberFilter->Release();
-    }
-    if (m_sourceFilter) {
-        m_sourceFilter->Release();
-    }
-	*/
-    delete m_callbackHandler;
 }
 
 int VideoDevice::getId() const {
@@ -66,23 +70,13 @@ VideoDevice::Properties VideoDevice::getCurrentProperties() const {
 }
 
 bool VideoDevice::setCurrentProperties(const VideoDevice::Properties& properties) {
-	bool wasActive = m_isActive;
-	if (wasActive) {
-		if (!stop()) {
-			return false;
-		}
-	}
     m_currentProperties = properties;
 
-    HRESULT hr = m_config->SetFormat(const_cast<AM_MEDIA_TYPE*>(&properties.mediaType));
+	AM_MEDIA_TYPE mt = properties.mediaType;
+    HRESULT hr = m_config->SetFormat(&mt);
     if (hr < 0) {
         return false;
     }
-	if (wasActive) {
-		if (!start()) {
-			return false;
-		}
-	}
     return true;
 }
 
