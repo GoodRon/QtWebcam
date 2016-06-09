@@ -27,15 +27,22 @@ VideoDevice::~VideoDevice() {
     if (m_config) {
         m_config->Release();
     }
+    if (m_graph) {
+        m_graph->Release();
+    }
+    if (m_sampleGrabber) {
+        m_sampleGrabber->Release();
+    }
+    if (m_nullRenderer) {
+        m_nullRenderer->Release();
+    }
+    if (m_sampleGrabberFilter) {
+        m_sampleGrabberFilter->Release();
+    }
+    if (m_sourceFilter) {
+        m_sourceFilter->Release();
+    }
     delete m_callbackHandler;
-	/*
-    SAFE_RELEASE(m_config);
-    SAFE_RELEASE(m_graph);
-    SAFE_RELEASE(m_sampleGrabber);
-    SAFE_RELEASE(m_nullRenderer);
-    SAFE_RELEASE(m_sampleGrabberFilter);
-    SAFE_RELEASE(m_sourceFilter);
-	*/
 }
 
 int VideoDevice::getId() const {

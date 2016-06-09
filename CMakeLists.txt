@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 3.0)
 
+if(NOT DEFINED CMAKE_PREFIX_PATH)
+	if(MSVC)
+		set(CMAKE_PREFIX_PATH "F:\\soft\\Qt\\5.5\\msvc2013")
+	endif()
+endif()
+
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
     set(CMAKE_INSTALL_PREFIX "../install")
 endif()
 
 IF(NOT DEFINED CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE MinSizeRel)
-endif()
-
-if(NOT DEFINED CMAKE_PREFIX_PATH)
-	if(MSVC)
-		set(CMAKE_PREFIX_PATH "F:\\soft\\Qt\\5.5\\msvc2013")
-	endif()
 endif()
 
 if(MSVC)
@@ -40,16 +40,8 @@ if( MSVC )
 endif()
 
 set(QT_LIBS Qt5::Core Qt5::Widgets Qt5::Gui)
-
-set(SRC main.cpp
-		WebcamWindow.cpp
-                VideoDevice.cpp
-                VideoCapture.cpp
-	)
-
-set(LIBS ${QT_LIBS}
-                strmiids Ole32 OleAut32
-	)
+set(SRC main.cpp WebcamWindow.cpp VideoDevice.cpp VideoCapture.cpp)
+set(LIBS ${QT_LIBS} strmiids Ole32 OleAut32)
 
 add_executable(webcam ${SRC})
 target_link_libraries(webcam ${LIBS})

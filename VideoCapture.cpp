@@ -50,22 +50,19 @@ VideoCapture::VideoCapture():
 
     initializeGraph();
     initializeVideo();
-
-    // we have to use this construct, because other
-    // filters may have been added to the graph
-//    m_control->Run();
-//    for (auto& device: m_devices) {
-//        device->stop();
-//    }
 }
 
 VideoCapture::~VideoCapture() {
     stopControl();
-	/*
-    SAFE_RELEASE(m_control);
-    SAFE_RELEASE(m_capture);
-    SAFE_RELEASE(m_graph);
-	*/
+    if (m_control) {
+        m_control->Release();
+    }
+    if (m_capture) {
+        m_capture->Release();
+    }
+    if (m_graph) {
+        m_graph->Release();
+    }
 }
 
 std::vector<std::shared_ptr<VideoDevice>> VideoCapture::getDevices() const {
