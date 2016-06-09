@@ -151,9 +151,6 @@ bool VideoCapture::changeActiveDeviceResolution(unsigned resolutionNum) {
     return true;
 }
 
-
-#include <iostream>
-using namespace std;
 bool VideoCapture::startCapture() {
     if (m_activeDeviceNum >= m_devices.size()) {
         return false;
@@ -276,15 +273,12 @@ bool VideoCapture::initializeVideo() {
             device->m_friendlyName = device->m_filterName = wname;
 			device->m_filterName = addIdToName(device->m_filterName, device->m_id);
 
-			wcout << wname << " filter" << device->m_filterName << endl;
-
             // add a filter for the device
             hr = m_graph->AddSourceFilterForMoniker(moniker, nullptr, device->m_filterName.c_str(),
                                                     &device->m_sourceFilter);
             if (hr != S_OK) {
                 pbag->Release();
                 moniker->Release();
-				cout << "AddSourceFilterForMoniker" << endl;
                 continue;
             }
 
@@ -294,7 +288,6 @@ bool VideoCapture::initializeVideo() {
             if (hr < 0) {
                 pbag->Release();
                 moniker->Release();
-				cout << "CLSID_SampleGrabber" << endl;
                 continue;
             }
 
@@ -304,7 +297,6 @@ bool VideoCapture::initializeVideo() {
             if (hr != S_OK) {
                 pbag->Release();
                 moniker->Release();
-				cout << "IID_ISampleGrabber" << endl;
                 continue;
             }
 
@@ -325,7 +317,6 @@ bool VideoCapture::initializeVideo() {
             if (hr != S_OK) {
                 pbag->Release();
                 moniker->Release();
-				cout << "SetMediaType" << endl;
                 continue;
             }
 
@@ -334,7 +325,6 @@ bool VideoCapture::initializeVideo() {
             if (hr != S_OK) {
                 pbag->Release();
                 moniker->Release();
-				cout << "SetCallback" << endl;
                 continue;
             }
 
@@ -344,7 +334,6 @@ bool VideoCapture::initializeVideo() {
             if (hr < 0) {
                 pbag->Release();
                 moniker->Release();
-				cout << "CLSID_NullRenderer" << endl;
                 continue;
             }
 
@@ -358,7 +347,6 @@ bool VideoCapture::initializeVideo() {
             if (hr < 0) {
                 pbag->Release();
                 moniker->Release();
-				cout << "PIN_CATEGORY_PREVIEW" << endl;
                 continue;
             }
 
@@ -369,7 +357,6 @@ bool VideoCapture::initializeVideo() {
             if (hr < 0) {
                 pbag->Release();
                 moniker->Release();
-				cout << "ControlStream" << endl;
                 continue;
             }
 
@@ -528,12 +515,9 @@ bool VideoCapture::updateDeviceCapabilities(VideoDevice* device) {
             continue;
         }
 
-        if (supportedModes & VideoControlFlag_FlipHorizontal) {
-            properties.isFlippedHorizontal = mode & VideoControlFlag_FlipHorizontal;
-        }
-        if ((supportedModes & VideoControlFlag_FlipVertical) >> 1) {
-            properties.isFlippedVertical = (mode & VideoControlFlag_FlipVertical) >> 1;
-        }
+        properties.isFlippedHorizontal = mode & VideoControlFlag_FlipHorizontal;
+        properties.isFlippedVertical = (mode & VideoControlFlag_FlipVertical) >> 1;
+
         device->m_propertiesList.push_back(properties);
 
         pPin->Release();

@@ -39,15 +39,19 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     m_devices(new QComboBox),
     m_resolutions(new QComboBox),
     m_vsplitter(new QSplitter),
+	m_flipButton(new QPushButton("Flip frame")),
     m_videoCapture(nullptr),
-    m_isCapturing(false) {
+    m_isCapturing(false),
+	m_isFlipped(false) {
     setWindowTitle("QtWebcam");
+	setWindowFlags(this->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
 
     m_controlLayout->addWidget(m_devices);
     m_controlLayout->addWidget(m_resolutions);
     m_controlLayout->addWidget(m_vsplitter);
     m_controlLayout->addWidget(m_startButton);
     m_controlLayout->addWidget(m_stopButton);
+	m_controlLayout->addWidget(m_flipButton);
     m_controlGroup->setLayout(m_controlLayout);
     m_controlGroup->setMinimumWidth(200);
     m_controlGroup->setMaximumWidth(200);
@@ -77,6 +81,7 @@ WebcamWindow::WebcamWindow(QWidget *parent):
     connect(m_devices, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void(WebcamWindow::*)(int)>(&WebcamWindow::changeDevice));
     connect(m_startButton, &QPushButton::released, this, &WebcamWindow::startCapture);
     connect(m_stopButton, &QPushButton::released, this, &WebcamWindow::stopCapture);
+	connect(m_flipButton, &QPushButton::released, this, &WebcamWindow::flipFrame);
 }
 
 WebcamWindow::~WebcamWindow() {
@@ -101,7 +106,7 @@ void WebcamWindow::processFrame(const unsigned char* data, int len, VideoDevice*
                                device->getCurrentProperties().height));
     m_frameMutex.lock();
     m_frame = newFrame.mirrored(device->getCurrentProperties().isFlippedHorizontal,
-                                device->getCurrentProperties().isFlippedVertical);
+                                device->getCurrentProperties().isFlippedVertical || m_isFlipped);
     m_frameMutex.unlock();
 
     QMetaObject::invokeMethod(this, "presentFrame", Qt::QueuedConnection);
@@ -128,6 +133,7 @@ void WebcamWindow::changeResolution(int resolutionNum) {
 void WebcamWindow::changeDevice(int deviceNum) {
     bool wasCapturing = m_isCapturing;
     stopCapture();
+
     m_videoCapture->changeActiveDevice(deviceNum);
 
 	m_resolutions->clear();
@@ -142,6 +148,10 @@ void WebcamWindow::changeDevice(int deviceNum) {
     }
 }
 
+void WebcamWindow::flipFrame() {
+	m_isFlipped = !m_isFlipped;
+}
+
 void WebcamWindow::startCapture() {
     if (m_videoCapture->startCapture()) {
         m_isCapturing = true;
@@ -152,5 +162,6 @@ void WebcamWindow::stopCapture() {
     if (m_videoCapture->stopCapture()) {
         m_isCapturing = false;
     }
+	m_frame.fill(Qt::GlobalColor::white);
+	presentFrame();
 }
-

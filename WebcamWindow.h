@@ -41,6 +41,7 @@ private Q_SLOTS:
     void presentFrame();
     void changeResolution(int resolutionNum);
     void changeDevice(int deviceNum);
+	void flipFrame();
     void startCapture();
     void stopCapture();
 
@@ -57,8 +58,10 @@ private:
     QComboBox* m_devices;
     QComboBox* m_resolutions;
     QSplitter* m_vsplitter;
+	QPushButton* m_flipButton;
     VideoCapture* m_videoCapture;
     bool m_isCapturing;
+	bool m_isFlipped;
 };
 
 
