@@ -77,9 +77,11 @@ VideoCapture::~VideoCapture() {
 
     stopControl();
 	
+	/*
     if (m_graph) {
         m_graph->Release();
     }
+	*/
 }
 
 std::vector<std::wstring> VideoCapture::getDevicesNames() const {

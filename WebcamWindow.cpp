@@ -32,12 +32,13 @@ WebcamWindow::WebcamWindow(QWidget *parent):
 		m_controlGroup(new QGroupBox),
 		m_windowLayout(new QHBoxLayout),
 		m_windowGroup(new QGroupBox),
-		m_startButton(new QPushButton),
-		m_stopButton(new QPushButton),
+		m_startButton(new QPushButton("Turn On")),
+		m_stopButton(new QPushButton("Turn Off")),
 		m_devices(new QComboBox),
 		m_resolutions(new QComboBox),
 		m_vsplitter(new QSplitter),
-		m_videoCapture(nullptr) {
+		m_videoCapture(nullptr),
+		m_isCapturing(false) { 
 	setWindowTitle("QtWebcam");
 
 	m_controlLayout->addWidget(m_devices);
@@ -52,11 +53,11 @@ WebcamWindow::WebcamWindow(QWidget *parent):
 	m_viewport->setMinimumSize(320, 240);
 	m_windowLayout->addWidget(m_viewport);
 	m_windowLayout->addWidget(m_controlGroup);
+	m_windowLayout->setSizeConstraint(QLayout::SetFixedSize);
 	m_windowGroup->setLayout(m_windowLayout);
 	setCentralWidget(m_windowGroup);
 
 	m_videoCapture = new VideoCapture(callback);
-	m_videoCapture->startCapture();
 
 	auto devicesNames = m_videoCapture->getDevicesNames();
 	for (auto& deviceName: devicesNames) {
@@ -69,9 +70,14 @@ WebcamWindow::WebcamWindow(QWidget *parent):
 		QString resolution = QString::fromStdString(deviceResolution);
 		m_resolutions->addItem(resolution);
 	}
+
+	connect(m_resolutions, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, static_cast<void(WebcamWindow::*)(int)>(&WebcamWindow::changeResolution));
+	connect(m_startButton, &QPushButton::released, this, &WebcamWindow::startCapture);
+	connect(m_stopButton, &QPushButton::released, this, &WebcamWindow::stopCapture);
 }
 
 WebcamWindow::~WebcamWindow() {
+	m_videoCapture->stopCapture();
 	delete m_videoCapture;
 }
 
@@ -115,3 +121,40 @@ void WebcamWindow::presentFrame() {
 	m_frameMutex.unlock();
 	m_viewport->repaint();
 }
+
+void WebcamWindow::changeResolution(int resolutionNum) {
+	bool wasCapturing = m_isCapturing;
+	stopCapture();
+	m_videoCapture->changeActiveDeviceResolution(resolutionNum);
+	if (wasCapturing) {
+		startCapture();
+	}
+}
+
+void WebcamWindow::changeDevice(int deviceNum) {
+	bool wasCapturing = m_isCapturing;
+	stopCapture();
+	m_videoCapture->changeActiveDevice(deviceNum);
+	if (wasCapturing) {
+		startCapture();
+	}
+}
+
+void WebcamWindow::startCapture() {
+	if (m_isCapturing == true) {
+		return;
+	}
+	if (m_videoCapture->startCapture()) {
+		m_isCapturing = true;
+	}
+}
+
+void WebcamWindow::stopCapture() {
+	if (m_isCapturing == false) {
+		return;
+	}
+	if (m_videoCapture->stopCapture()) {
+		m_isCapturing = false;
+	}
+}
+

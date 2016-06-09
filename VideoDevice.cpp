@@ -25,9 +25,11 @@ VideoDevice::VideoDevice():
 }
 
 VideoDevice::~VideoDevice() {
+	/*
 	if (m_config) {
         m_config->Release();
     }
+	
     if (m_graph) {
         m_graph->Release();
     }
@@ -43,6 +45,7 @@ VideoDevice::~VideoDevice() {
     if (m_sourceFilter) {
         m_sourceFilter->Release();
     }
+	*/
     delete m_callbackHandler;
 }
 

@@ -39,6 +39,10 @@ private:
 
 private Q_SLOTS:
 	void presentFrame();
+	void changeResolution(int resolutionNum);
+	void changeDevice(int deviceNum);
+	void startCapture();
+	void stopCapture();
 
 private:
 	QLabel* m_viewport;
@@ -54,6 +58,7 @@ private:
 	QComboBox* m_resolutions;
 	QSplitter* m_vsplitter;
 	VideoCapture* m_videoCapture;
+	bool m_isCapturing;
 };
 
 
