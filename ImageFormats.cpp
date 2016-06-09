@@ -32,10 +32,20 @@ QImage makeRGB555Image(const unsigned char* data, unsigned len,
     return simpleQimage(data, len, width, height, QImage::Format_RGB555).rgbSwapped();
 }
 
+QImage makeRGB565Image(const unsigned char* data, unsigned len,
+                       unsigned width, unsigned height) {
+    return simpleQimage(data, len, width, height, QImage::Format_RGB16).rgbSwapped();
+}
+
 QImage makeMjpgImage(const unsigned char* data, unsigned len,
                      unsigned width, unsigned height) {
     QByteArray bytes(reinterpret_cast<const char*>(data), len);
     QImage image;
     image.loadFromData(bytes, "JPEG");
+    return image;
+}
+
+QImage dummy(const unsigned char* data, unsigned len, unsigned width, unsigned height) {
+    QImage image;
     return image;
 }
